@@ -2,9 +2,13 @@
   @if (employee(); as emp) {
     <header class="w-full max-w-5xl mx-auto mb-8 flex justify-between items-center">
       <div class="flex items-center gap-4">
-        <div [class]="'w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg ' + getAvatarColor(emp.name)">
-          {{ getInitials(emp.name) }}
-        </div>
+        @if (emp.photo_url) {
+          <img [src]="emp.photo_url" [alt]="emp.name" class="w-16 h-16 rounded-full object-cover shadow-lg">
+        } @else {
+          <div [class]="'w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg ' + getAvatarColor(emp.name)">
+            {{ getInitials(emp.name) }}
+          </div>
+        }
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 tracking-tight">Bem-vindo(a), {{ emp.name.split(' ')[0] }}!</h1>
           <p class="text-slate-400">{{ emp.roles.name }}</p>

@@ -38,9 +38,13 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
         @for (func of funcionarios(); track func.id) {
           <div (click)="selectFuncionario(func)" class="scale-up group cursor-pointer flex flex-col items-center p-4 bg-slate-800/50 rounded-lg border border-slate-700/50 hover:bg-slate-700/70 hover:border-sky-500/50 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
-            <div [class]="'w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold text-white mb-3 shadow-lg ' + getAvatarColor(func.name)">
-              {{ getInitials(func.name) }}
-            </div>
+            @if (func.photo_url) {
+              <img [src]="func.photo_url" [alt]="func.name" class="w-20 h-20 rounded-full object-cover mb-3 shadow-lg">
+            } @else {
+              <div [class]="'w-20 h-20 rounded-full flex items-center justify-center text-3xl font-bold text-white mb-3 shadow-lg ' + getAvatarColor(func.name)">
+                {{ getInitials(func.name) }}
+              </div>
+            }
             <div class="text-center">
               <p class="font-semibold text-slate-100 group-hover:text-sky-300 transition-colors">{{ func.name }}</p>
               <p class="text-sm text-slate-400">{{ func.roles.name }}</p>
