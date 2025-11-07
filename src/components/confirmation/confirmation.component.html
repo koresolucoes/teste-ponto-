@@ -1,0 +1,23 @@
+<div class="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8 bg-slate-900 text-white">
+  @if(employee(); as emp) {
+    <div class="text-center max-w-lg w-full">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-emerald-400 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{ message() }}</h1>
+      <p class="text-lg text-slate-400 mt-2">Olá, {{ emp.name.split(' ')[0] }}! Seu ponto foi registrado.</p>
+      <p class="text-slate-400 mt-1">Horário: {{ new Date() | date:'shortTime' }}</p>
+
+      <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+        <button (click)="viewTimeSheet()" class="w-full sm:w-auto bg-sky-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors duration-200">
+          Ver meu espelho de ponto
+        </button>
+        <a routerLink="/" class="w-full sm:w-auto text-center bg-slate-700 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-slate-500 transition-colors duration-200">
+          Voltar ao Início
+        </a>
+      </div>
+
+      <p class="text-sm text-slate-500 mt-12">Você será redirecionado para a tela inicial em 10 segundos.</p>
+    </div>
+  }
+</div>

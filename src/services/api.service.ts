@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Funcionario } from '../models/funcionario.model';
-import { BaterPontoRequest, BaterPontoResponse } from '../models/ponto.model';
+import { BaterPontoRequest, BaterPontoResponse, TimeSheetEntry } from '../models/ponto.model';
 import { SettingsService } from './settings.service';
 
 @Injectable({
@@ -44,6 +44,21 @@ export class ApiService {
     }
     // Usando a URL com proxy
     return this.http.post<BaterPontoResponse>(`${this.proxiedBaseUrl}/ponto/bater-ponto`, data, options)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getRegistrosPonto(employeeId: string, data_inicio: string, data_fim: string): Observable<TimeSheetEntry[]> {
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+
+    const params = options.params
+      .set('employeeId', employeeId)
+      .set('data_inicio', data_inicio)
+      .set('data_fim', data_fim);
+
+    return this.http.get<TimeSheetEntry[]>(`${this.proxiedBaseUrl}/ponto`, { headers: options.headers, params: params })
       .pipe(catchError((error) => this.handleError(error)));
   }
 

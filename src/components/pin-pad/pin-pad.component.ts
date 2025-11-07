@@ -95,8 +95,13 @@ export class PinPadComponent {
       .subscribe({
         next: (response) => {
           this.status.set('success');
-          this.message.set(this.getSuccessMessage(response.status));
-          setTimeout(() => this.router.navigate(['/']), 2500);
+          this.router.navigate(['/ponto-registrado'], {
+            state: {
+              employee: this.employee(),
+              response: response,
+              message: this.getSuccessMessage(response.status)
+            }
+          });
         },
         error: (err) => {
           this.status.set('error');

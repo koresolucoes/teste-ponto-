@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { EmployeeListComponent } from './components/employee-list/employee-list.component';
 import { PinPadComponent } from './components/pin-pad/pin-pad.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { ConfirmationComponent } from './components/confirmation/confirmation.component';
+import { TimeSheetComponent } from './components/time-sheet/time-sheet.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -13,6 +15,16 @@ export const APP_ROUTES: Routes = [
     path: 'pin/:id',
     component: PinPadComponent,
     title: 'Ponto Móvel - Inserir PIN',
+  },
+  {
+    path: 'ponto-registrado',
+    component: ConfirmationComponent,
+    title: 'Ponto Móvel - Ponto Registrado',
+  },
+  {
+    path: 'espelho-ponto/:id',
+    component: TimeSheetComponent,
+    title: 'Ponto Móvel - Espelho de Ponto',
   },
   {
     path: 'settings',
