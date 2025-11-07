@@ -2,10 +2,10 @@ import { Routes } from '@angular/router';
 import { EmployeeListComponent } from './components/employee-list/employee-list.component';
 import { PinPadComponent } from './components/pin-pad/pin-pad.component';
 import { SettingsComponent } from './components/settings/settings.component';
-import { ConfirmationComponent } from './components/confirmation/confirmation.component';
 import { TimeSheetComponent } from './components/time-sheet/time-sheet.component';
 import { EscalaComponent } from './components/escala/escala.component';
 import { HoleriteComponent } from './components/holerite/holerite.component';
+import { PortalComponent } from './components/portal/portal.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -19,9 +19,9 @@ export const APP_ROUTES: Routes = [
     title: 'Ponto Móvel - Inserir PIN',
   },
   {
-    path: 'ponto-registrado',
-    component: ConfirmationComponent,
-    title: 'Ponto Móvel - Ponto Registrado',
+    path: 'portal/:id',
+    component: PortalComponent,
+    title: 'Portal do Colaborador',
   },
   {
     path: 'espelho-ponto/:id',

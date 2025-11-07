@@ -1,0 +1,63 @@
+<div class="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8 bg-slate-900 text-white">
+  @if(employee(); as emp) {
+    <div class="w-full max-w-4xl">
+      <header class="flex flex-col sm:flex-row items-center gap-6 mb-10">
+        @if (emp.photo_url) {
+          <img [src]="emp.photo_url" [alt]="emp.name" loading="lazy" class="w-24 h-24 rounded-full object-cover shadow-lg">
+        } @else {
+          <div [class]="'w-24 h-24 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg ' + getAvatarColor(emp.name)">
+            {{ getInitials(emp.name) }}
+          </div>
+        }
+        <div class="text-center sm:text-left">
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Bem-vindo(a), {{ emp.name.split(' ')[0] }}!</h1>
+          <p class="text-lg text-slate-400 mt-1">{{ emp.roles.name }}</p>
+        </div>
+      </header>
+
+      <div class="bg-slate-800 rounded-lg shadow-lg p-6 mb-10 text-center">
+        <p class="text-slate-300">Última ação registrada:</p>
+        <p class="text-xl font-semibold text-emerald-400">{{ lastActionMessage() }}</p>
+        <p class="text-sm text-slate-500">em {{ lastActionTime | date:'dd/MM/yyyy' }} às {{ lastActionTime | date:'HH:mm:ss' }}</p>
+      </div>
+
+      <main>
+        <h2 class="text-2xl font-semibold text-center text-white mb-6">Portal do Colaborador</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <button (click)="baterPonto()" class="portal-button bg-sky-600 hover:bg-sky-500">
+            <span class="text-4xl">🕒</span>
+            <span class="text-xl">Bater Ponto</span>
+          </button>
+          <button (click)="viewTimeSheet()" class="portal-button bg-indigo-600 hover:bg-indigo-500">
+            <span class="text-4xl">📅</span>
+            <span class="text-xl">Espelho de Ponto</span>
+          </button>
+          <button (click)="viewEscala()" class="portal-button bg-purple-600 hover:bg-purple-500">
+              <span class="text-4xl">🗓️</span>
+            <span class="text-xl">Minha Escala</span>
+          </button>
+          <button (click)="viewHolerite()" class="portal-button bg-emerald-600 hover:bg-emerald-500">
+              <span class="text-4xl">📄</span>
+            <span class="text-xl">Meus Holerites</span>
+          </button>
+        </div>
+      </main>
+      
+      <footer class="mt-12 text-center">
+        <a routerLink="/" class="text-center bg-slate-700 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-slate-500 transition-colors duration-200">
+          Sair
+        </a>
+      </footer>
+    </div>
+  } @else {
+    <div class="text-center">
+      <p class="text-slate-400">Carregando informações do funcionário...</p>
+    </div>
+  }
+</div>
+
+<style>
+  .portal-button {
+    @apply flex flex-col items-center justify-center gap-4 p-6 h-48 rounded-lg text-white font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-white/50 transform hover:-translate-y-1 shadow-lg;
+  }
+</style>

@@ -87,7 +87,7 @@ export class PinPadComponent {
       .subscribe({
         next: (response) => {
           this.status.set('success');
-          this.router.navigate(['/ponto-registrado'], {
+          this.router.navigate(['/portal', employeeId], {
             state: {
               employee: this.employee(),
               response: response,

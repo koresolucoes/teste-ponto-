@@ -17,69 +17,7 @@ interface DailySchedule {
 
 @Component({
   selector: 'app-escala',
-  template: `
-    <main class="bg-gray-100 min-h-screen p-4 flex flex-col items-center font-sans">
-      <div class="w-full max-w-2xl bg-white rounded-lg shadow-md p-6">
-        <header class="flex justify-between items-center border-b pb-4 mb-6">
-          <h1 class="text-2xl font-bold text-gray-800">Minha Escala</h1>
-          <a routerLink="/" class="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Voltar</span>
-          </a>
-        </header>
-
-        @if (employee(); as emp) {
-          <div class="mb-6 text-center">
-            <h2 class="text-xl font-semibold text-gray-700">{{ emp.name }}</h2>
-            <p class="text-gray-500">{{ emp.roles.name }}</p>
-          </div>
-        }
-
-        @if (loading()) {
-          <div class="flex justify-center items-center p-8">
-            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500"></div>
-          </div>
-        } @else if (error(); as errorMessage) {
-          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline ml-2">{{ errorMessage }}</span>
-          </div>
-        } @else {
-          <div class="border rounded-lg overflow-hidden">
-            @if (hasAnySchedule()) {
-              <ul class="divide-y divide-gray-200">
-                @for (day of weeklySchedule(); track day.date) {
-                  <li class="p-4 flex justify-between items-center">
-                    <div>
-                      <p class="font-semibold text-gray-800">{{ day.dayName }}</p>
-                      <p class="text-sm text-gray-500">{{ day.date | date:'dd/MM/yyyy' }}</p>
-                    </div>
-                    <div>
-                      @if (day.hasSchedule) {
-                        @if (day.isDayOff) {
-                          <span class="px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 rounded-full">Folga</span>
-                        } @else {
-                          <span class="font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">{{ day.shift!.start_time | date:'HH:mm' }} - {{ day.shift!.end_time | date:'HH:mm' }}</span>
-                        }
-                      } @else {
-                        <span class="text-gray-400 italic">Sem escala</span>
-                      }
-                    </div>
-                  </li>
-                }
-              </ul>
-            } @else {
-              <div class="text-center p-8">
-                <p class="text-gray-500">Nenhuma escala encontrada para esta semana.</p>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </main>
-  `,
+  templateUrl: './escala.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink],
 })
