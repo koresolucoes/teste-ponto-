@@ -63,8 +63,8 @@ export class EmployeeListComponent implements OnInit {
       });
   }
 
-  selectFuncionario(id: string): void {
-    this.router.navigate(['/pin', id]);
+  selectFuncionario(func: Funcionario): void {
+    this.router.navigate(['/pin', func.id], { state: { employee: func } });
   }
 
   getInitials(name: string): string {

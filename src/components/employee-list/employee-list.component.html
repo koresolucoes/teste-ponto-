@@ -40,7 +40,7 @@
       @if (funcionarios().length > 0) {
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
           @for (func of funcionarios(); track func.id) {
-            <button (click)="selectFuncionario(func.id)" class="group flex flex-col items-center p-4 bg-slate-800 rounded-lg shadow-lg hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-all duration-200 transform hover:-translate-y-1">
+            <button (click)="selectFuncionario(func)" class="group flex flex-col items-center p-4 bg-slate-800 rounded-lg shadow-lg hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-all duration-200 transform hover:-translate-y-1">
               @if (func.photo_url) {
                 <img [src]="func.photo_url" [alt]="func.name" loading="lazy" class="w-20 h-20 rounded-full object-cover mb-3 shadow-md">
               } @else {

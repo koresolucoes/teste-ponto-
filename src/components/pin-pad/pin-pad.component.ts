@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { finalize } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
 import { Funcionario } from '../../models/funcionario.model';
 import { BaterPontoStatus } from '../../models/ponto.model';
 
-type ViewStatus = 'idle' | 'loading' | 'success' | 'error' | 'fetching';
+type ViewStatus = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-pin-pad',
@@ -15,14 +14,13 @@ type ViewStatus = 'idle' | 'loading' | 'success' | 'error' | 'fetching';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink],
 })
-export class PinPadComponent implements OnInit {
+export class PinPadComponent {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   employee = signal<Funcionario | null>(null);
   pin = signal('');
-  status = signal<ViewStatus>('fetching');
+  status = signal<ViewStatus>('idle');
   message = signal('');
 
   pinDots = computed(() => Array(4).fill(0).map((_, i) => i < this.pin().length));
@@ -34,25 +32,18 @@ export class PinPadComponent implements OnInit {
     'bg-rose-500', 'bg-violet-500', 'bg-teal-500', 'bg-pink-500'
   ];
 
-  ngOnInit(): void {
-    const employeeId = this.route.snapshot.paramMap.get('id');
-    if (employeeId) {
-      this.loadEmployee(employeeId);
+  constructor() {
+    const navigation = this.router.getCurrentNavigation();
+    const employeeFromState = navigation?.extras.state?.['employee'] as Funcionario | undefined;
+
+    if (employeeFromState) {
+      this.employee.set(employeeFromState);
     } else {
+      // If the page is reloaded, the state is lost. Redirect to the home page.
       this.router.navigate(['/']);
     }
   }
 
-  loadEmployee(id: string): void {
-    this.status.set('fetching');
-    this.apiService.getFuncionarioById(id)
-      .pipe(finalize(() => this.status.set('idle')))
-      .subscribe({
-        next: (data) => this.employee.set(data),
-        error: () => this.router.navigate(['/']),
-      });
-  }
-  
   getInitials(name: string): string {
     if (!name) return '';
     const names = name.split(' ');

@@ -36,16 +36,6 @@ export class ApiService {
     return this.http.get<Funcionario[]>(`${this.proxiedBaseUrl}/funcionarios`, options)
       .pipe(catchError((error) => this.handleError(error)));
   }
-  
-  getFuncionarioById(id: string): Observable<Funcionario> {
-    const options = this.getOptions();
-    if (!options) {
-      return throwError(() => new Error('API não configurada.'));
-    }
-    // Usando a URL com proxy
-    return this.http.get<Funcionario>(`${this.proxiedBaseUrl}/funcionarios/${id}`, options)
-      .pipe(catchError((error) => this.handleError(error)));
-  }
 
   baterPonto(data: BaterPontoRequest): Observable<BaterPontoResponse> {
     const options = this.getOptions();
