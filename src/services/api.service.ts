@@ -6,6 +6,7 @@ import { BaterPontoRequest, BaterPontoResponse, TimeSheetEntry } from '../models
 import { SettingsService } from './settings.service';
 import { Schedule } from '../models/escala.model';
 import { FolhaPagamentoResponse } from '../models/folha-pagamento.model';
+import { VerificarPinRequest, VerificarPinResponse } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +45,15 @@ export class ApiService {
     );
   }
 
+  verificarPin(data: VerificarPinRequest): Observable<VerificarPinResponse> {
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+    return this.http.post<VerificarPinResponse>(`${this.proxiedBaseUrl}/verificar-pin`, data, options)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
   baterPonto(data: BaterPontoRequest): Observable<BaterPontoResponse> {
     const options = this.getOptions();
     if (!options) {
@@ -66,6 +76,27 @@ export class ApiService {
 
     return this.http.get<TimeSheetEntry[]>(`${this.proxiedBaseUrl}/ponto`, { headers: options.headers, params: params })
       .pipe(catchError((error) => this.handleError(error)));
+  }
+  
+  getUltimoRegistroPonto(employeeId: string): Observable<TimeSheetEntry | null> {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    // Busca dos últimos 7 dias para garantir que pegamos a última ação
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(today.getDate() - 7);
+    const oneWeekAgoStr = oneWeekAgo.toISOString().split('T')[0];
+
+    return this.getRegistrosPonto(employeeId, oneWeekAgoStr, todayStr).pipe(
+      map(entries => {
+        if (entries && entries.length > 0) {
+          // Ordena em ordem decrescente pelo tempo de entrada e retorna o mais recente.
+          return entries.sort((a, b) => new Date(b.clock_in_time).getTime() - new Date(a.clock_in_time).getTime())[0];
+        }
+        return null;
+      }),
+      catchError(() => [null]) // Retorna nulo em caso de erro para não quebrar a UI
+    );
   }
 
   getEscalas(data_inicio: string, data_fim: string): Observable<Schedule[]> {
@@ -114,6 +145,9 @@ export class ApiService {
       // Erro do lado do servidor
       if (error.status === 401 || error.status === 403) {
         errorMessage = 'Credenciais da API inválidas ou não fornecidas. Verifique as configurações.';
+         if (error.url?.includes('ponto') || error.url?.includes('verificar-pin')) {
+           errorMessage = 'PIN incorreto.';
+         }
       } else {
         errorMessage = `Erro ${error.status}: ${error.message}`;
       }

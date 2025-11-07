@@ -42,7 +42,7 @@ export class EmployeeListComponent implements OnInit {
   ngOnInit(): void {
     const loggedInId = this.authService.loggedInEmployeeId();
     if (loggedInId) {
-      this.router.navigate(['/pin', loggedInId]);
+      this.router.navigate(['/portal', loggedInId]);
       return;
     }
     

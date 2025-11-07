@@ -1,50 +1,56 @@
-
-<!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<!doctype html>
+<html lang="en" class="dark">
 <head>
-  <meta charset="utf-8" />
-  <title>Ponto Móvel</title>
-  <base href="/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <meta charset="utf-t">
+  <title>Ponto Móvel Gastronômico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom scrollbar for a more modern look */
-    ::-webkit-scrollbar {
-      width: 8px;
+    body {
+      background-color: #0f172a; /* slate-900 */
+      background-image: radial-gradient(circle at top right, rgba(14, 165, 233, 0.15), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1), transparent 50%);
     }
-    ::-webkit-scrollbar-track {
-      background: #1e293b; /* slate-800 */
+    .bg-dots {
+       background-image: radial-gradient(#334155 1px, transparent 1px);
+       background-size: 24px 24px;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #475569; /* slate-600 */
-      border-radius: 4px;
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out forwards;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #64748b; /* slate-500 */
+    .scale-up {
+        animation: scaleUp 0.3s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes scaleUp {
+        from { transform: scale(0.95); opacity: 0.8; }
+        to { transform: scale(1); opacity: 1; }
     }
   </style>
-<script type="importmap">
-{
-  "imports": {
-    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
-    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
-    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
-    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
-    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
-    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
-    "@angular/core": "https://next.esm.sh/@angular/core@^20.3.10?external=rxjs",
-    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.3.10?external=rxjs",
-    "@angular/router": "https://next.esm.sh/@angular/router@^20.3.10?external=rxjs",
-    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.10?external=rxjs",
-    "@angular/common": "https://next.esm.sh/@angular/common@^20.3.10?external=rxjs",
-    "@angular/common/http": "https://next.esm.sh/@angular/common@^20.3.10/http?external=rxjs",
-    "@angular/forms": "https://next.esm.sh/@angular/forms@^20.3.10?external=rxjs"
+  <script type="importmap">
+  {
+    "imports": {
+      "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+      "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+      "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+      "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+      "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+      "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+      "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.3.10?external=rxjs",
+      "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.3.10?external=rxjs",
+      "@angular/core": "https://next.esm.sh/@angular/core@^20.3.10?external=rxjs",
+      "@angular/common": "https://next.esm.sh/@angular/common@^20.3.10?external=rxjs",
+      "@angular/common/http": "https://next.esm.sh/@angular/common@^20.3.10/http?external=rxjs",
+      "@angular/forms": "https://next.esm.sh/@angular/forms@^20.3.10?external=rxjs",
+      "@angular/router": "https://next.esm.sh/@angular/router@^20.3.10?external=rxjs"
+    }
   }
-}
-</script>
+  </script>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-200 antialiased">
+<body class="bg-slate-900 text-slate-200 bg-dots">
   <app-root></app-root>
 </body>
 </html>

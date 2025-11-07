@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
 
 import { ApiService } from '../../services/api.service';
 import { Funcionario } from '../../models/funcionario.model';
-import { BaterPontoStatus } from '../../models/ponto.model';
 import { AuthService } from '../../services/auth.service';
 
 type ViewStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -42,20 +42,17 @@ export class PinPadComponent {
     if (employeeFromState) {
       this.employee.set(employeeFromState);
     } else {
-      // If the page is reloaded or accessed directly, the state is lost.
-      // Fetch the employee data using the ID from the URL.
+      // Se a página for recarregada, busca os dados do funcionário pelo ID na URL.
       const employeeId = this.route.snapshot.paramMap.get('id');
       if (employeeId) {
         this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
           if (emp) {
             this.employee.set(emp);
           } else {
-            // Employee not found, redirect to home.
             this.router.navigate(['/']);
           }
         });
       } else {
-        // No ID in URL, redirect to home.
         this.router.navigate(['/']);
       }
     }
@@ -97,40 +94,32 @@ export class PinPadComponent {
     if (this.pin().length !== 4 || !this.employee()) return;
 
     this.status.set('loading');
-    this.message.set('Processando...');
+    this.message.set('Verificando...');
 
     const employeeId = this.employee()!.id;
-    this.apiService.baterPonto({ employeeId, pin: this.pin() })
+    const pin = this.pin();
+    
+    this.apiService.verificarPin({ employeeId, pin })
+      .pipe(finalize(() => {
+        this.pin.set('');
+      }))
       .subscribe({
         next: (response) => {
-          this.status.set('success');
-          // Persist the login session
-          this.authService.login(employeeId);
-          this.router.navigate(['/portal', employeeId], {
-            state: {
-              // employee: this.employee(), // Portal now fetches its own data
-              response: response,
-              message: this.getSuccessMessage(response.status)
-            }
-          });
+          if (response.success) {
+            this.status.set('success');
+            this.message.set('Acesso liberado!');
+            this.authService.login(employeeId);
+            setTimeout(() => this.router.navigate(['/portal', employeeId]), 1000);
+          } else {
+            // Caso a API retorne success: false, mas status 200
+            this.status.set('error');
+            this.message.set(response.message || 'PIN incorreto.');
+          }
         },
         error: (err) => {
           this.status.set('error');
-          // Error is now handled by the server. From a user's perspective,
-          // the most likely cause is an incorrect PIN.
-          this.message.set('PIN incorreto. Tente novamente.');
-          this.pin.set('');
-        },
+          this.message.set(err.message || 'PIN incorreto. Tente novamente.');
+        }
       });
-  }
-  
-  private getSuccessMessage(status: BaterPontoStatus): string {
-    switch (status) {
-      case 'TURNO_INICIADO': return 'Turno iniciado com sucesso!';
-      case 'PAUSA_INICIADA': return 'Pausa iniciada.';
-      case 'PAUSA_FINALIZADA': return 'Pausa finalizada.';
-      case 'TURNO_FINALIZADO': return 'Turno finalizado. Bom descanso!';
-      default: return 'Operação realizada com sucesso!';
-    }
   }
 }

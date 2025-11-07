@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
+import { finalize } from 'rxjs';
 
 import { Funcionario } from '../../models/funcionario.model';
-import { BaterPontoResponse } from '../../models/ponto.model';
+import { BaterPontoResponse, BaterPontoStatus, TimeSheetEntry } from '../../models/ponto.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -20,8 +21,17 @@ export class PortalComponent {
   private readonly authService = inject(AuthService);
 
   employee = signal<Funcionario | null>(null);
-  lastActionMessage = signal('');
-  readonly lastActionTime = new Date();
+  lastActionMessage = signal('Carregando último registro...');
+  lastActionTime = signal<Date | null>(null);
+  
+  // Estado do Modal
+  showPinModal = signal(false);
+  modalPin = signal('');
+  modalStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
+  modalMessage = signal('');
+  
+  modalPinDots = computed(() => Array(4).fill(0).map((_, i) => i < this.modalPin().length));
+  keypadButtons = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Limpar', '0', '<'];
   
   private readonly colors = [
     'bg-sky-500', 'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500',
@@ -29,31 +39,54 @@ export class PortalComponent {
   ];
 
   constructor() {
-    const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { response: BaterPontoResponse; message: string; } | undefined;
-
-    // Handle one-time message from PIN pad after clocking in
-    if (state?.message) {
-      this.lastActionMessage.set(state.message);
-    } else {
-      // On refresh or direct navigation, show a generic welcome message
-      this.lastActionMessage.set('Bem-vindo(a) de volta!');
-    }
-    
-    // Fetch employee data using ID from the URL to be resilient
     const employeeId = this.route.snapshot.paramMap.get('id');
     if (employeeId) {
       this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
         if (emp) {
           this.employee.set(emp);
+          this.loadLastAction(employeeId);
         } else {
-          // If employee not found for some reason, log out.
           this.authService.logout();
         }
       });
     } else {
-      // If no ID is present, log out.
       this.authService.logout();
+    }
+  }
+
+  loadLastAction(employeeId: string): void {
+    this.apiService.getUltimoRegistroPonto(employeeId).subscribe(lastEntry => {
+      if (lastEntry) {
+        this.displayLastActionFromHistory(lastEntry);
+      } else {
+        this.lastActionMessage.set('Nenhum registro de ponto. Pronto para iniciar o turno!');
+        this.lastActionTime.set(null);
+      }
+    });
+  }
+  
+  private displayLastActionFromHistory(entry: TimeSheetEntry): void {
+    this.lastActionTime.set(new Date(entry.clock_in_time));
+    if (entry.clock_out_time) {
+        this.lastActionMessage.set('Última ação: Fim de turno');
+    } else {
+        // Limitação: a API de histórico não informa se o ponto aberto é início de turno ou de pausa.
+        this.lastActionMessage.set('Turno em andamento');
+    }
+  }
+
+  private displayLastActionFromBaterPonto(response: BaterPontoResponse): void {
+    this.lastActionMessage.set(this.getBaterPontoMessage(response.status));
+    this.lastActionTime.set(new Date());
+  }
+  
+  private getBaterPontoMessage(status: BaterPontoStatus): string {
+    switch (status) {
+      case 'TURNO_INICIADO': return 'Turno iniciado com sucesso!';
+      case 'PAUSA_INICIADA': return 'Pausa iniciada.';
+      case 'PAUSA_FINALIZADA': return 'Pausa finalizada.';
+      case 'TURNO_FINALIZADO': return 'Turno finalizado. Bom descanso!';
+      default: return 'Operação realizada com sucesso!';
     }
   }
 
@@ -80,21 +113,62 @@ export class PortalComponent {
     }
   }
 
-  baterPonto(): void {
-    this.navigateWithState('/pin');
+  openBaterPontoModal(): void {
+    this.modalPin.set('');
+    this.modalStatus.set('idle');
+    this.modalMessage.set('');
+    this.showPinModal.set(true);
+  }
+  
+  closeModal(): void {
+    this.showPinModal.set(false);
   }
 
-  viewTimeSheet(): void {
-    this.navigateWithState('/espelho-ponto');
+  handleModalPinKeyPress(key: string): void {
+    if (this.modalStatus() === 'loading' || this.modalStatus() === 'success') return;
+
+    if (/\d/.test(key)) {
+      this.modalPin.update(p => (p.length < 4 ? p + key : p));
+    } else if (key === 'Limpar') {
+      this.modalPin.set('');
+    } else if (key === '<') {
+      this.modalPin.update(p => p.slice(0, -1));
+    }
+
+    if (this.modalStatus() === 'error') {
+      this.modalStatus.set('idle');
+      this.modalMessage.set('');
+    }
   }
 
-  viewEscala(): void {
-    this.navigateWithState('/escala');
-  }
+  submitModalPin(): void {
+    if (this.modalPin().length !== 4 || !this.employee()) return;
 
-  viewHolerite(): void {
-    this.navigateWithState('/holerite');
+    this.modalStatus.set('loading');
+    this.modalMessage.set('Processando...');
+
+    const employeeId = this.employee()!.id;
+    this.apiService.baterPonto({ employeeId, pin: this.modalPin() })
+      .pipe(finalize(() => {
+          this.modalPin.set('');
+      }))
+      .subscribe({
+        next: (response) => {
+          this.modalStatus.set('success');
+          this.modalMessage.set(this.getBaterPontoMessage(response.status));
+          this.displayLastActionFromBaterPonto(response);
+          setTimeout(() => this.closeModal(), 1500);
+        },
+        error: (err) => {
+          this.modalStatus.set('error');
+          this.modalMessage.set(err.message || 'PIN incorreto. Tente novamente.');
+        },
+      });
   }
+  
+  viewTimeSheet(): void { this.navigateWithState('/espelho-ponto'); }
+  viewEscala(): void { this.navigateWithState('/escala'); }
+  viewHolerite(): void { this.navigateWithState('/holerite'); }
   
   logout(): void {
     this.authService.logout();

@@ -1,63 +1,143 @@
-<div class="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8 bg-slate-900 text-white">
-  @if(employee(); as emp) {
-    <div class="w-full max-w-4xl">
-      <header class="flex flex-col sm:flex-row items-center gap-6 mb-10">
-        @if (emp.photo_url) {
-          <img [src]="emp.photo_url" [alt]="emp.name" loading="lazy" class="w-24 h-24 rounded-full object-cover shadow-lg">
-        } @else {
-          <div [class]="'w-24 h-24 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg ' + getAvatarColor(emp.name)">
-            {{ getInitials(emp.name) }}
-          </div>
-        }
-        <div class="text-center sm:text-left">
-          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Bem-vindo(a), {{ emp.name.split(' ')[0] }}!</h1>
-          <p class="text-lg text-slate-400 mt-1">{{ emp.roles.name }}</p>
+<div class="min-h-screen w-full flex flex-col p-4 sm:p-6 lg:p-8 fade-in">
+  @if (employee(); as emp) {
+    <header class="w-full max-w-5xl mx-auto mb-8 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <div [class]="'w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-lg ' + getAvatarColor(emp.name)">
+          {{ getInitials(emp.name) }}
         </div>
-      </header>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-100 tracking-tight">Bem-vindo(a), {{ emp.name.split(' ')[0] }}!</h1>
+          <p class="text-slate-400">{{ emp.roles.name }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" title="Sair" class="p-2 text-slate-400 hover:bg-slate-700/50 hover:text-rose-400 rounded-full transition-all duration-200">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </header>
 
-      <div class="bg-slate-800 rounded-lg shadow-lg p-6 mb-10 text-center">
-        <p class="text-slate-300">Última ação registrada:</p>
-        <p class="text-xl font-semibold text-emerald-400">{{ lastActionMessage() }}</p>
-        <p class="text-sm text-slate-500">em {{ lastActionTime | date:'dd/MM/yyyy' }} às {{ lastActionTime | date:'HH:mm:ss' }}</p>
+    <main class="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Coluna Principal -->
+      <div class="lg:col-span-2">
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
+          <h2 class="text-xl font-semibold text-slate-200 mb-2">Registro de Ponto</h2>
+          <p class="text-slate-400 mb-6">Pronto para iniciar ou finalizar suas atividades?</p>
+
+          <div class="bg-slate-700/40 rounded-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-sky-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p class="font-medium text-slate-300">{{ lastActionMessage() }}</p>
+                @if(lastActionTime(); as time) {
+                    <p class="text-sm text-slate-400">{{ time | date:'dd/MM/yyyy HH:mm' }}</p>
+                }
+              </div>
+            </div>
+            <button (click)="openBaterPontoModal()" class="w-full md:w-auto mt-4 md:mt-0 flex-shrink-0 px-8 py-4 bg-sky-600 text-white font-bold rounded-lg text-lg tracking-wider hover:bg-sky-500 transition-all duration-200 transform hover:scale-105">
+              BATER PONTO
+            </button>
+          </div>
+        </div>
       </div>
 
-      <main>
-        <h2 class="text-2xl font-semibold text-center text-white mb-6">Portal do Colaborador</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <button (click)="baterPonto()" class="portal-button bg-sky-600 hover:bg-sky-500">
-            <span class="text-4xl">🕒</span>
-            <span class="text-xl">Bater Ponto</span>
-          </button>
-          <button (click)="viewTimeSheet()" class="portal-button bg-indigo-600 hover:bg-indigo-500">
-            <span class="text-4xl">📅</span>
-            <span class="text-xl">Espelho de Ponto</span>
-          </button>
-          <button (click)="viewEscala()" class="portal-button bg-purple-600 hover:bg-purple-500">
-              <span class="text-4xl">🗓️</span>
-            <span class="text-xl">Minha Escala</span>
-          </button>
-          <button (click)="viewHolerite()" class="portal-button bg-emerald-600 hover:bg-emerald-500">
-              <span class="text-4xl">📄</span>
-            <span class="text-xl">Meus Holerites</span>
-          </button>
+      <!-- Coluna Lateral -->
+      <div class="lg:col-span-1">
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
+          <h2 class="text-xl font-semibold text-slate-200 mb-6">Acesso Rápido</h2>
+          <div class="space-y-4">
+            <!-- Espelho de Ponto -->
+            <button (click)="viewTimeSheet()" class="w-full flex items-center p-4 bg-slate-700/40 rounded-lg hover:bg-slate-700/80 hover:ring-2 hover:ring-sky-500/50 transition-all duration-200">
+               <div class="p-2 bg-slate-600/50 rounded-md mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+               </div>
+              <span class="font-medium text-slate-200">Espelho de Ponto</span>
+            </button>
+             <!-- Minha Escala -->
+            <button (click)="viewEscala()" class="w-full flex items-center p-4 bg-slate-700/40 rounded-lg hover:bg-slate-700/80 hover:ring-2 hover:ring-sky-500/50 transition-all duration-200">
+              <div class="p-2 bg-slate-600/50 rounded-md mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              </div>
+              <span class="font-medium text-slate-200">Minha Escala</span>
+            </button>
+             <!-- Meus Holerites -->
+            <button (click)="viewHolerite()" class="w-full flex items-center p-4 bg-slate-700/40 rounded-lg hover:bg-slate-700/80 hover:ring-2 hover:ring-sky-500/50 transition-all duration-200">
+              <div class="p-2 bg-slate-600/50 rounded-md mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+              </div>
+              <span class="font-medium text-slate-200">Meus Holerites</span>
+            </button>
+          </div>
         </div>
-      </main>
-      
-      <footer class="mt-12 text-center">
-        <button (click)="logout()" class="text-center bg-slate-700 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-slate-500 transition-colors duration-200">
-          Sair
-        </button>
-      </footer>
-    </div>
+      </div>
+    </main>
+
   } @else {
-    <div class="text-center">
-      <p class="text-slate-400">Carregando informações do funcionário...</p>
-    </div>
+    <div class="text-center text-slate-300">Carregando portal...</div>
   }
 </div>
 
-<style>
-  .portal-button {
-    @apply flex flex-col items-center justify-center gap-4 p-6 h-48 rounded-lg text-white font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-white/50 transform hover:-translate-y-1 shadow-lg;
-  }
-</style>
+<!-- Modal Bater Ponto -->
+@if (showPinModal()) {
+  <div @fade class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 fade-in" (click)="closeModal()">
+    <div class="w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up" (click)="$event.stopPropagation()">
+      <h3 class="text-xl font-semibold text-center text-slate-100 mb-2">Confirmar Ação</h3>
+      <p class="text-center text-slate-400 mb-6">Digite seu PIN para bater o ponto.</p>
+
+      <div class="flex justify-center items-center space-x-4 h-4 mb-6">
+        @for (filled of modalPinDots(); track $index) {
+          <div class="w-4 h-4 rounded-full border-2 border-slate-500 transition-all duration-200"
+               [class.bg-sky-400]="filled"
+               [class.border-sky-400]="filled"
+               [class.scale-110]="filled">
+          </div>
+        }
+      </div>
+
+      @if (modalStatus() !== 'idle') {
+        <div class="min-h-[48px] flex justify-center items-center mb-4 text-center px-4 py-2 rounded-lg"
+             [class.bg-sky-900/50]="modalStatus() === 'loading' || modalStatus() === 'success'"
+             [class.text-sky-300]="modalStatus() === 'loading' || modalStatus() === 'success'"
+             [class.bg-rose-900/50]="modalStatus() === 'error'"
+             [class.text-rose-300]="modalStatus() === 'error'">
+            
+            @if(modalStatus() === 'loading') {
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            } @else if (modalStatus() === 'success') {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+            } @else if (modalStatus() === 'error') {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
+            }
+          {{ modalMessage() }}
+        </div>
+      } @else {
+        <div class="min-h-[48px] mb-4"></div>
+      }
+
+      <div class="grid grid-cols-3 gap-3">
+        @for (key of keypadButtons; track key) {
+          <button (click)="handleModalPinKeyPress(key)" 
+                  [disabled]="modalStatus() === 'loading' || modalStatus() === 'success'"
+                  class="h-14 text-2xl font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-sky-500"
+                  [ngClass]="{
+                    'bg-slate-700/50 hover:bg-slate-600/50 text-slate-200': key !== '<' && key !== 'Limpar',
+                    'bg-transparent text-slate-400 hover:bg-slate-700/50': key === 'Limpar' || key === '<',
+                    'text-lg': key === 'Limpar'
+                  }">
+            {{ key }}
+          </button>
+        }
+      </div>
+
+       <button (click)="submitModalPin()" [disabled]="modalPin().length !== 4 || modalStatus() === 'loading' || modalStatus() === 'success'"
+              class="w-full mt-6 h-12 bg-sky-600 text-white font-bold rounded-lg text-base tracking-wider
+                     hover:bg-sky-500 transition-all duration-200
+                     disabled:bg-slate-600 disabled:text-slate-400 disabled:cursor-not-allowed">
+        CONFIRMAR
+      </button>
+
+    </div>
+  </div>
+}

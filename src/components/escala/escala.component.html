@@ -1,65 +1,68 @@
-<div class="min-h-screen bg-slate-900 text-slate-200 p-4 sm:p-6 lg:p-8">
-  <div class="max-w-4xl mx-auto">
-    <header class="flex items-center justify-between mb-8">
-      <div>
-        @if (employee(); as emp) {
-          <h1 class="text-3xl font-bold text-white">Minha Escala</h1>
-          <p class="text-slate-400 text-lg">{{ emp.name }}</p>
-        }
-      </div>
-       @if (employee(); as emp) {
-        <a [routerLink]="['/portal', emp.id]" class="text-slate-400 hover:text-white transition-colors duration-200 py-2 px-4 rounded-md bg-slate-800 hover:bg-slate-700 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-            <span>Voltar ao Portal</span>
+<div class="min-h-screen w-full flex flex-col p-4 sm:p-6 lg:p-8 fade-in">
+  @if (employee(); as emp) {
+    <header class="w-full max-w-4xl mx-auto mb-8">
+      <div class="flex items-center gap-3">
+        <a [routerLink]="['/portal', emp.id]" class="p-2 text-slate-400 hover:bg-slate-700/50 hover:text-sky-400 rounded-full transition-all duration-200">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         </a>
-      }
+        <h1 class="text-3xl font-bold text-slate-100 tracking-tight">Minha Escala Semanal</h1>
+      </div>
+      <p class="text-slate-400 ml-11">{{ emp.name }}</p>
     </header>
 
-    <div class="bg-slate-800 rounded-lg shadow-lg">
-      @if (loading()) {
-        <div class="flex justify-center items-center p-16">
-          <svg class="animate-spin h-10 w-10 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
+    <main class="w-full max-w-4xl mx-auto bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
+       @if (loading()) {
+        <div class="flex justify-center items-center py-10">
+          <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <span class="text-slate-300 text-lg">Carregando escala...</span>
         </div>
-      } @else if (error(); as errorMessage) {
-        <div class="p-6">
-            <div class="bg-rose-800/50 border border-rose-700 text-rose-200 px-4 py-3 rounded-lg relative text-center" role="alert">
-                <strong class="font-bold">Erro!</strong>
-                <span class="block sm:inline ml-2">{{ errorMessage }}</span>
-            </div>
-        </div>
+      } @else if (error()) {
+        <div class="text-center py-10 text-rose-300">{{ error() }}</div>
       } @else if (hasAnySchedule()) {
-        <ul class="divide-y divide-slate-700">
-          @for (day of weeklySchedule(); track day.date) {
-            <li class="p-4 sm:p-6 flex justify-between items-center">
-              <div>
-                <p class="font-bold text-lg text-white">{{ day.dayName }}</p>
-                <p class="text-sm text-slate-400">{{ day.date | date:'dd/MM/yyyy' }}</p>
-              </div>
-              <div>
-                @if (day.hasSchedule) {
-                  @if (day.isDayOff) {
-                    <span class="px-3 py-1 text-sm font-semibold text-emerald-300 bg-emerald-900/50 rounded-full">Folga</span>
-                  } @else {
-                    <span class="font-mono text-sky-300 bg-slate-700 px-3 py-2 rounded-md">{{ day.shift!.start_time | date:'HH:mm' }} - {{ day.shift!.end_time | date:'HH:mm' }}</span>
-                  }
-                } @else {
-                  <span class="text-slate-500 italic">Sem escala definida</span>
-                }
-              </div>
-            </li>
-          }
-        </ul>
+        <div class="space-y-4">
+            @for(day of weeklySchedule(); track day.date) {
+                <div class="p-4 rounded-lg flex items-center justify-between"
+                     [class.bg-slate-700/50]="day.date.toDateString() === (new Date()).toDateString()"
+                     [class.bg-slate-700/20]="day.date.toDateString() !== (new Date()).toDateString()">
+                    <div class="flex items-center">
+                        <div class="w-16 text-center mr-4">
+                            <p class="font-bold text-xl text-slate-200">{{ day.date | date:'dd' }}</p>
+                            <p class="text-sm text-slate-400">{{ day.date | date:'MMM' }}</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-lg" 
+                                [class.text-slate-100]="day.date.toDateString() === (new Date()).toDateString()"
+                                [class.text-slate-300]="day.date.toDateString() !== (new Date()).toDateString()">
+                                {{ day.dayName }}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        @if (day.hasSchedule && !day.isDayOff && day.shift) {
+                            <div class="text-right">
+                                <p class="font-mono text-lg text-sky-300">{{ day.shift.start_time | date:'HH:mm' }} - {{ day.shift.end_time | date:'HH:mm' }}</p>
+                                <p class="text-sm text-slate-400">Turno de trabalho</p>
+                            </div>
+                        } @else if (day.isDayOff) {
+                             <div class="px-4 py-2 rounded-full bg-emerald-900/50 text-emerald-300 text-sm font-medium">
+                                Dia de Folga
+                            </div>
+                        } @else {
+                             <div class="px-4 py-2 rounded-full bg-slate-600/50 text-slate-400 text-sm font-medium">
+                                Sem escala
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
       } @else {
-        <div class="text-center py-16">
-          <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <p class="text-slate-400 mt-4">Nenhuma escala encontrada para esta semana.</p>
+        <div class="text-center py-10">
+          <p class="text-slate-400">Nenhuma escala de trabalho publicada para esta semana.</p>
         </div>
       }
-    </div>
-  </div>
+    </main>
+  } @else {
+    <div class="text-center text-slate-300">Carregando...</div>
+  }
 </div>

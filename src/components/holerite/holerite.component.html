@@ -1,100 +1,85 @@
-<div class="min-h-screen bg-slate-900 text-slate-200 p-4 sm:p-6 lg:p-8">
-  <div class="max-w-4xl mx-auto">
-    <header class="flex items-center justify-between mb-8">
-      <div>
-        @if (employee(); as emp) {
-          <h1 class="text-3xl font-bold text-white">Meus Holerites</h1>
-          <p class="text-slate-400 text-lg">{{ emp.name }}</p>
-        }
-      </div>
-       @if (employee(); as emp) {
-        <a [routerLink]="['/portal', emp.id]" class="text-slate-400 hover:text-white transition-colors duration-200 py-2 px-4 rounded-md bg-slate-800 hover:bg-slate-700 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-            <span>Voltar ao Portal</span>
+<div class="min-h-screen w-full flex flex-col p-4 sm:p-6 lg:p-8 fade-in">
+  @if (employee(); as emp) {
+    <header class="w-full max-w-4xl mx-auto mb-8">
+      <div class="flex items-center gap-3">
+        <a [routerLink]="['/portal', emp.id]" class="p-2 text-slate-400 hover:bg-slate-700/50 hover:text-sky-400 rounded-full transition-all duration-200">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
         </a>
-      }
+        <h1 class="text-3xl font-bold text-slate-100 tracking-tight">Meus Holerites</h1>
+      </div>
+      <p class="text-slate-400 ml-11">{{ emp.name }}</p>
     </header>
 
-    <div class="bg-slate-800 rounded-lg shadow-lg p-6">
-      <div class="flex flex-col sm:flex-row items-center justify-between mb-6 border-b border-slate-700 pb-4 gap-4">
-        <p class="text-lg font-semibold">Selecione o Período</p>
+    <main class="w-full max-w-4xl mx-auto bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-700">
+        <h2 class="text-xl font-semibold text-slate-200">Selecione o Período</h2>
         <div class="flex items-center gap-4">
-          <select [value]="selectedMonth()" (change)="onMonthChange($event)" class="form-select">
-            @for(month of months(); track month.value) {
+          <select [ngModel]="selectedMonth()" (change)="onMonthChange($event)" class="bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            @for (month of months(); track month.value) {
               <option [value]="month.value">{{ month.name }}</option>
             }
           </select>
-          <select [value]="selectedYear()" (change)="onYearChange($event)" class="form-select">
-            @for(year of years(); track year) {
+          <select [ngModel]="selectedYear()" (change)="onYearChange($event)" class="bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-2 text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+            @for (year of years(); track year) {
               <option [value]="year">{{ year }}</option>
             }
           </select>
-          <button (click)="loadHolerite()" [disabled]="loading()" class="bg-sky-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-sky-500 transition-colors disabled:bg-slate-600">
-            Buscar
+          <button (click)="loadHolerite()" class="px-4 py-2 bg-sky-600 text-white font-semibold rounded-lg hover:bg-sky-500 transition-colors">
+            Consultar
           </button>
         </div>
       </div>
 
-      <div class="min-h-[300px]">
-        @if (loading()) {
-          <div class="flex justify-center items-center p-24">
-            <svg class="animate-spin h-12 w-12 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-        } @else if (error(); as errorMessage) {
-          <div class="m-4 bg-rose-800/50 border border-rose-700 text-rose-200 px-4 py-3 rounded-lg text-center" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline ml-2">{{ errorMessage }}</span>
-          </div>
-        } @else if (payslip(); as p) {
-          <div class="space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-              <div class="bg-slate-700/50 p-4 rounded-lg">
-                <p class="text-sm text-slate-400">Horas Trabalhadas</p>
-                <p class="text-2xl font-bold font-mono">{{ p.horas_trabajadas.toFixed(2) }}</p>
-              </div>
-              <div class="bg-slate-700/50 p-4 rounded-lg">
-                <p class="text-sm text-slate-400">Horas Extras</p>
-                <p class="text-2xl font-bold font-mono">{{ p.horas_extras.toFixed(2) }}</p>
-              </div>
-              <div class="bg-slate-700/50 p-4 rounded-lg">
-                <p class="text-sm text-slate-400">Horas Programadas</p>
-                <p class="text-2xl font-bold font-mono">{{ p.horas_programadas.toFixed(2) }}</p>
-              </div>
+       @if (loading()) {
+        <div class="flex justify-center items-center py-10">
+          <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          <span class="text-slate-300 text-lg">Gerando holerite...</span>
+        </div>
+      } @else if (error()) {
+        <div class="text-center py-10 text-rose-300">{{ error() }}</div>
+      } @else if (payslip(); as slip) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Cargo:</span>
+                <span class="font-semibold text-slate-100">{{ slip.cargo }}</span>
             </div>
-            <div class="border-t border-slate-700 pt-6 space-y-3">
-              <div class="flex justify-between items-center">
-                <p class="text-slate-300">Pagamento Base</p>
-                <p class="font-semibold text-white font-mono">{{ p.pago_base | currency:'BRL' }}</p>
-              </div>
-              <div class="flex justify-between items-center">
-                <p class="text-slate-300">Pagamento Horas Extras</p>
-                <p class="font-semibold text-white font-mono">{{ p.pago_extra | currency:'BRL' }}</p>
-              </div>
-              <div class="border-t border-slate-600 my-3"></div>
-              <div class="flex justify-between items-center text-xl">
-                <p class="font-bold text-white">Total a Pagar</p>
-                <p class="font-bold text-emerald-400 font-mono">{{ p.total_a_pagar | currency:'BRL' }}</p>
-              </div>
+             <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Período:</span>
+                <span class="font-semibold text-slate-100">{{ slip.name }}</span>
             </div>
-          </div>
-        } @else {
-          <div class="text-center py-10">
-              <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <p class="text-slate-400 mt-4">Nenhum holerite encontrado para o período selecionado.</p>
-          </div>
-        }
-      </div>
-    </div>
-  </div>
-</div>
+            <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Horas Contratadas:</span>
+                <span class="font-mono text-slate-100">{{ slip.horas_programadas.toFixed(2) }}h</span>
+            </div>
+             <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Horas Trabalhadas:</span>
+                <span class="font-mono text-slate-100">{{ slip.horas_trabajadas.toFixed(2) }}h</span>
+            </div>
+            <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Horas Extras:</span>
+                <span class="font-mono text-emerald-400">{{ slip.horas_extras.toFixed(2) }}h</span>
+            </div>
+            <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Pagamento Base:</span>
+                <span class="font-mono text-slate-100">{{ slip.pago_base | currency:'BRL':'symbol' }}</span>
+            </div>
+             <div class="flex justify-between items-baseline py-3 border-b border-slate-700">
+                <span class="text-slate-400">Pagamento Extra:</span>
+                <span class="font-mono text-emerald-400">{{ slip.pago_extra | currency:'BRL':'symbol' }}</span>
+            </div>
+            <div class="md:col-span-2 mt-4 flex justify-between items-baseline p-4 bg-sky-900/50 rounded-lg">
+                <span class="text-xl font-bold text-sky-300">Total a Pagar:</span>
+                <span class="text-2xl font-bold font-mono text-sky-300">{{ slip.total_a_pagar | currency:'BRL':'symbol' }}</span>
+            </div>
+        </div>
+      } @else {
+        <div class="text-center py-10">
+          <p class="text-slate-400">Nenhum holerite encontrado para este período.</p>
+        </div>
+      }
+    </main>
 
-<style>
-  .form-select {
-    @apply bg-slate-700 border border-slate-600 rounded-md text-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500;
+  } @else {
+    <div class="text-center text-slate-300">Carregando...</div>
   }
-</style>
+</div>

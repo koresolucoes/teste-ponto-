@@ -1,72 +1,80 @@
-<div class="flex flex-col items-center justify-center min-h-screen p-4 bg-slate-900 relative">
-  <a routerLink="/" class="absolute top-4 left-4 sm:top-6 sm:left-6 text-slate-400 hover:text-white transition-colors duration-200">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 000-10H5" />
-    </svg>
-    <span class="sr-only">Voltar</span>
-  </a>
-  
+<div class="min-h-screen w-full flex flex-col items-center justify-center p-4 fade-in">
   @if (employee(); as emp) {
-    <div class="w-full max-w-sm mx-auto text-center">
-      @if (emp.photo_url) {
-        <img [src]="emp.photo_url" [alt]="emp.name" loading="lazy" class="w-24 h-24 rounded-full object-cover mb-6 shadow-lg mx-auto">
-      } @else {
-        <div [class]="'w-24 h-24 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-6 shadow-lg mx-auto ' + getAvatarColor(emp.name)">
+    <div class="w-full max-w-sm mx-auto bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
+      <div class="flex flex-col items-center mb-6">
+        <div [class]="'w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold text-white mb-4 shadow-lg ' + getAvatarColor(emp.name)">
           {{ getInitials(emp.name) }}
         </div>
-      }
-      <header class="mb-8">
-        <h1 class="text-3xl font-bold text-white">Olá, {{ emp.name.split(' ')[0] }}!</h1>
-        <p class="text-slate-400 text-lg">Por favor, insira seu PIN</p>
-      </header>
-      
-      <div class="flex justify-center space-x-4 mb-8">
-        @for (filled of pinDots(); track $index) {
-          <div class="w-5 h-5 rounded-full border-2 border-slate-600 transition-colors duration-200" [class.bg-sky-400]="filled" [class.border-sky-400]="filled"></div>
-        }
+        <h2 class="text-2xl font-semibold text-slate-100">{{ emp.name }}</h2>
+        <p class="text-slate-400">{{ emp.roles.name }}</p>
       </div>
-
-      <div class="grid grid-cols-3 gap-4 mb-8">
-        @for(key of keypadButtons; track key) {
-          <button 
-            (click)="handleKeyPress(key)"
-            [disabled]="status() === 'loading' || status() === 'success'"
-            class="h-20 text-3xl font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 disabled:opacity-50"
-            [class.bg-slate-800]="key !== 'Limpar' && key !== '<'"
-            [class.hover:bg-slate-700]="key !== 'Limpar' && key !== '<'"
-            [class.text-white]="key !== 'Limpar' && key !== '<'"
-            [class.bg-transparent]="key === 'Limpar' || key === '<'"
-            [class.text-slate-400]="key === 'Limpar' || key === '<'"
-            [class.hover:bg-slate-800]="key === 'Limpar' || key === '<'"
-            [class.text-sm]="key === 'Limpar'"
-            >
+  
+      <div class="mb-6">
+        <p class="text-center text-slate-300 mb-4">Digite seu PIN de 4 dígitos</p>
+        <div class="flex justify-center items-center space-x-4 h-4">
+          @for (filled of pinDots(); track $index) {
+            <div class="w-4 h-4 rounded-full border-2 border-slate-500 transition-all duration-200"
+                 [class.bg-sky-400]="filled"
+                 [class.border-sky-400]="filled"
+                 [class.scale-110]="filled">
+            </div>
+          }
+        </div>
+      </div>
+  
+      @if (status() !== 'idle') {
+        <div class="min-h-[48px] flex justify-center items-center mb-4 text-center px-4 py-2 rounded-lg"
+             [class.bg-sky-900/50]="status() === 'loading' || status() === 'success'"
+             [class.text-sky-300]="status() === 'loading' || status() === 'success'"
+             [class.bg-rose-900/50]="status() === 'error'"
+             [class.text-rose-300]="status() === 'error'">
+             
+            @if(status() === 'loading') {
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            } @else if (status() === 'success') {
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+            } @else if (status() === 'error') {
+                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+            }
+          {{ message() }}
+        </div>
+      } @else {
+        <div class="min-h-[48px] mb-4"></div>
+      }
+      
+      <div class="grid grid-cols-3 gap-3">
+        @for (key of keypadButtons; track key) {
+          <button (click)="handleKeyPress(key)" 
+                  [disabled]="status() === 'loading' || status() === 'success'"
+                  class="h-16 text-2xl font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-sky-500"
+                  [ngClass]="{
+                    'bg-slate-700/50 hover:bg-slate-600/50 text-slate-200': key !== '<' && key !== 'Limpar',
+                    'bg-transparent text-slate-400 hover:bg-slate-700/50': key === 'Limpar' || key === '<',
+                    'text-lg': key === 'Limpar'
+                  }">
             {{ key }}
           </button>
         }
       </div>
-
-      <button (click)="submitPin()" 
-        [disabled]="pin().length !== 4 || status() !== 'idle' && status() !== 'error'" 
-        class="w-full bg-sky-600 text-white font-bold py-4 px-4 rounded-lg text-lg hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors duration-200 disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed">
-        Entrar
+  
+      <button (click)="submitPin()" [disabled]="pin().length !== 4 || status() === 'loading' || status() === 'success'"
+              class="w-full mt-6 h-14 bg-sky-600 text-white font-bold rounded-lg text-lg tracking-wider
+                     hover:bg-sky-500 transition-all duration-200
+                     disabled:bg-slate-600 disabled:text-slate-400 disabled:cursor-not-allowed">
+        ENTRAR
       </button>
-
-      <div class="mt-6 h-10 flex items-center justify-center">
-        @if (status() === 'loading') {
-          <svg class="animate-spin h-6 w-6 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-        } @else if (message()) {
-          <p class="text-base font-medium"
-            [class.text-emerald-400]="status() === 'success'"
-            [class.text-rose-400]="status() === 'error'"
-          >
-            {{ message() }}
-          </p>
-        }
-      </div>
-
     </div>
+    <div class="mt-8 text-center">
+      <a routerLink="/" class="text-slate-400 hover:text-slate-200 transition-colors">Voltar para a seleção</a>
+    </div>
+  } @else {
+     <div class="text-center text-slate-300">Carregando dados do funcionário...</div>
   }
 </div>
