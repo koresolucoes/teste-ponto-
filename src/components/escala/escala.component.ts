@@ -48,7 +48,7 @@ interface DailySchedule {
           </div>
         } @else {
           <div class="border rounded-lg overflow-hidden">
-            @if (weeklySchedule().length > 0 && weeklySchedule().some(day => day.hasSchedule)) {
+            @if (hasAnySchedule()) {
               <ul class="divide-y divide-gray-200">
                 @for (day of weeklySchedule(); track day.date) {
                   <li class="p-4 flex justify-between items-center">
@@ -121,6 +121,11 @@ export class EscalaComponent implements OnInit {
             hasSchedule: !!shift
         };
     });
+  });
+  
+  hasAnySchedule = computed<boolean>(() => {
+    const schedule = this.weeklySchedule();
+    return schedule.length > 0 && schedule.some(day => day.hasSchedule);
   });
 
   constructor() {
