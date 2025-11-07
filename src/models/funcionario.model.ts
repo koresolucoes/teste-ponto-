@@ -1,4 +1,3 @@
-
 export interface Funcionario {
   id: string;
   name: string;
@@ -7,4 +6,5 @@ export interface Funcionario {
   user_id: string;
   created_at: string;
   roles: { name: string };
+  photo_url?: string | null;
 }

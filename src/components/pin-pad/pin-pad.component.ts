@@ -1,4 +1,3 @@
-
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -29,6 +28,11 @@ export class PinPadComponent implements OnInit {
   pinDots = computed(() => Array(4).fill(0).map((_, i) => i < this.pin().length));
 
   keypadButtons = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Limpar', '0', '<'];
+  
+  private readonly colors = [
+    'bg-sky-500', 'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500',
+    'bg-rose-500', 'bg-violet-500', 'bg-teal-500', 'bg-pink-500'
+  ];
 
   ngOnInit(): void {
     const employeeId = this.route.snapshot.paramMap.get('id');
@@ -47,6 +51,21 @@ export class PinPadComponent implements OnInit {
         next: (data) => this.employee.set(data),
         error: () => this.router.navigate(['/']),
       });
+  }
+  
+  getInitials(name: string): string {
+    if (!name) return '';
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  getAvatarColor(name: string): string {
+    if (!name) return this.colors[0];
+    const charCodeSum = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return this.colors[charCodeSum % this.colors.length];
   }
 
   handleKeyPress(key: string): void {

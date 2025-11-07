@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+// Fix: Import FormGroup to use as a type for the form property.
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SettingsService } from '../../services/settings.service';
@@ -11,14 +12,22 @@ import { SettingsService } from '../../services/settings.service';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
 })
 export class SettingsComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
+  private readonly fb: FormBuilder;
   private readonly settingsService = inject(SettingsService);
   private readonly router = inject(Router);
 
-  settingsForm = this.fb.group({
-    restaurantId: ['', [Validators.required]],
-    apiKey: ['', [Validators.required]],
-  });
+  settingsForm: FormGroup;
+
+  // Fix: Moved FormBuilder injection and form initialization to the constructor
+  // to ensure the injection context is correctly resolved for FormBuilder,
+  // which is provided by the ReactiveFormsModule imported in this component.
+  constructor() {
+    this.fb = inject(FormBuilder);
+    this.settingsForm = this.fb.group({
+      restaurantId: ['', [Validators.required]],
+      apiKey: ['', [Validators.required]],
+    });
+  }
 
   ngOnInit(): void {
     this.settingsForm.patchValue({
