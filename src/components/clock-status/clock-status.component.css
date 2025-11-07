@@ -1,0 +1,8 @@
+@keyframes countdown {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.progress-bar {
+  animation: countdown 30s linear forwards;
+}

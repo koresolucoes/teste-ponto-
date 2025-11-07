@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Funcionario } from '../models/funcionario.model';
-import { BaterPontoRequest, BaterPontoResponse } from '../models/ponto.model';
+import { BaterPontoRequest, BaterPontoResponse, TimeClockEntry } from '../models/ponto.model';
 import { SettingsService } from './settings.service';
 
 @Injectable({
@@ -44,6 +44,29 @@ export class ApiService {
     }
     // Usando a URL com proxy
     return this.http.post<BaterPontoResponse>(`${this.proxiedBaseUrl}/ponto/bater-ponto`, data, options)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getRegistrosPonto(employeeId: string): Observable<TimeClockEntry[]> {
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 7);
+
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+    const params = options.params
+      .set('employeeId', employeeId)
+      .set('data_inicio', formatDate(startDate))
+      .set('data_fim', formatDate(endDate));
+
+    const requestOptions = { headers: options.headers, params };
+
+    return this.http.get<TimeClockEntry[]>(`${this.proxiedBaseUrl}/ponto`, requestOptions)
       .pipe(catchError((error) => this.handleError(error)));
   }
 

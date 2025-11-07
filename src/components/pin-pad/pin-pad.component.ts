@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 
 import { ApiService } from '../../services/api.service';
 import { Funcionario } from '../../models/funcionario.model';
-import { BaterPontoStatus } from '../../models/ponto.model';
 
 type ViewStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -88,15 +87,18 @@ export class PinPadComponent {
     }
 
     this.status.set('loading');
-    this.message.set('Processando...');
+    this.message.set('');
 
     const employeeId = this.employee()!.id;
     this.apiService.baterPonto({ employeeId, pin: this.pin() })
       .subscribe({
         next: (response) => {
-          this.status.set('success');
-          this.message.set(this.getSuccessMessage(response.status));
-          setTimeout(() => this.router.navigate(['/']), 2500);
+          this.router.navigate(['/status'], { 
+            state: { 
+              employee: this.employee(), 
+              pontoResponse: response 
+            } 
+          });
         },
         error: (err) => {
           this.status.set('error');
@@ -105,15 +107,5 @@ export class PinPadComponent {
           this.pin.set('');
         },
       });
-  }
-  
-  private getSuccessMessage(status: BaterPontoStatus): string {
-    switch (status) {
-      case 'TURNO_INICIADO': return 'Turno iniciado com sucesso!';
-      case 'PAUSA_INICIADA': return 'Pausa iniciada.';
-      case 'PAUSA_FINALIZADA': return 'Pausa finalizada.';
-      case 'TURNO_FINALIZADO': return 'Turno finalizado. Bom descanso!';
-      default: return 'Operação realizada com sucesso!';
-    }
   }
 }
