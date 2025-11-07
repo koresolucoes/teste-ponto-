@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { ApiService } from '../../services/api.service';
 import { Funcionario } from '../../models/funcionario.model';
 import { BaterPontoStatus } from '../../models/ponto.model';
+import { AuthService } from '../../services/auth.service';
 
 type ViewStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -17,6 +18,8 @@ type ViewStatus = 'idle' | 'loading' | 'success' | 'error';
 export class PinPadComponent {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
 
   employee = signal<Funcionario | null>(null);
   pin = signal('');
@@ -39,8 +42,22 @@ export class PinPadComponent {
     if (employeeFromState) {
       this.employee.set(employeeFromState);
     } else {
-      // If the page is reloaded, the state is lost. Redirect to the home page.
-      this.router.navigate(['/']);
+      // If the page is reloaded or accessed directly, the state is lost.
+      // Fetch the employee data using the ID from the URL.
+      const employeeId = this.route.snapshot.paramMap.get('id');
+      if (employeeId) {
+        this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
+          if (emp) {
+            this.employee.set(emp);
+          } else {
+            // Employee not found, redirect to home.
+            this.router.navigate(['/']);
+          }
+        });
+      } else {
+        // No ID in URL, redirect to home.
+        this.router.navigate(['/']);
+      }
     }
   }
 
@@ -87,9 +104,11 @@ export class PinPadComponent {
       .subscribe({
         next: (response) => {
           this.status.set('success');
+          // Persist the login session
+          this.authService.login(employeeId);
           this.router.navigate(['/portal', employeeId], {
             state: {
-              employee: this.employee(),
+              // employee: this.employee(), // Portal now fetches its own data
               response: response,
               message: this.getSuccessMessage(response.status)
             }

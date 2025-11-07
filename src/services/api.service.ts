@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { Funcionario } from '../models/funcionario.model';
 import { BaterPontoRequest, BaterPontoResponse, TimeSheetEntry } from '../models/ponto.model';
 import { SettingsService } from './settings.service';
@@ -36,6 +36,12 @@ export class ApiService {
     }
     return this.http.get<Funcionario[]>(`${this.proxiedBaseUrl}/funcionarios`, options)
       .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getFuncionarioById(id: string): Observable<Funcionario | undefined> {
+    return this.getFuncionarios().pipe(
+      map(funcionarios => funcionarios.find(f => f.id === id))
+    );
   }
 
   baterPonto(data: BaterPontoRequest): Observable<BaterPontoResponse> {
@@ -76,7 +82,7 @@ export class ApiService {
         .pipe(catchError((error) => this.handleError(error)));
   }
 
-  getFolhaPagamento(mes: string, ano: string): Observable<FolhaPagamentoResponse> {
+  getFolhaPagamento(mes: string, ano: string, employeeId: string): Observable<FolhaPagamentoResponse> {
     const options = this.getOptions();
     if (!options) {
         return throwError(() => new Error('API não configurada.'));
@@ -85,7 +91,8 @@ export class ApiService {
     const params = options.params
         .set('action', 'resumo')
         .set('mes', mes)
-        .set('ano', ano);
+        .set('ano', ano)
+        .set('employeeId', employeeId);
     
     return this.http.get<FolhaPagamentoResponse>(`${this.proxiedBaseUrl}/folha-pagamento`, { headers: options.headers, params: params })
         .pipe(catchError((error) => this.handleError(error)));

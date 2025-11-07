@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 
@@ -24,6 +24,7 @@ interface DailySchedule {
 export class EscalaComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   employee = signal<Funcionario | null>(null);
   schedules = signal<Schedule[]>([]);
@@ -73,11 +74,26 @@ export class EscalaComponent implements OnInit {
     if (employeeFromState) {
       this.employee.set(employeeFromState);
     } else {
-      this.router.navigate(['/']);
+      // If state is lost, fetch from API. The ngOnInit will trigger loading.
+      const employeeId = this.route.snapshot.paramMap.get('id');
+      if (employeeId) {
+        this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
+          if (emp) {
+            this.employee.set(emp);
+            this.loadEscala(); // Trigger load after employee is fetched
+          } else {
+            this.router.navigate(['/']);
+          }
+        });
+      } else {
+        this.router.navigate(['/']);
+      }
     }
   }
 
   ngOnInit(): void {
+    // Only load if employee is already set from state in constructor.
+    // If fetched, load is called in subscribe block.
     if (this.employee()) {
       this.loadEscala();
     }

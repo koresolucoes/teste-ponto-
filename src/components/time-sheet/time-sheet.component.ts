@@ -55,8 +55,20 @@ export class TimeSheetComponent {
       this.employee.set(employeeFromState);
       this.loadEntries();
     } else {
-      // If state is lost (e.g., page refresh), we redirect to home.
-      this.router.navigate(['/']);
+      // If state is lost (e.g., page refresh), fetch the employee data.
+      const employeeId = this.route.snapshot.paramMap.get('id');
+      if (employeeId) {
+        this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
+          if (emp) {
+            this.employee.set(emp);
+            this.loadEntries();
+          } else {
+            this.router.navigate(['/']);
+          }
+        });
+      } else {
+        this.router.navigate(['/']);
+      }
     }
   }
 

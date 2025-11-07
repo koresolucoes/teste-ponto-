@@ -1,9 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 
 import { Funcionario } from '../../models/funcionario.model';
 import { BaterPontoResponse } from '../../models/ponto.model';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-portal',
@@ -13,6 +15,9 @@ import { BaterPontoResponse } from '../../models/ponto.model';
 })
 export class PortalComponent {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly apiService = inject(ApiService);
+  private readonly authService = inject(AuthService);
 
   employee = signal<Funcionario | null>(null);
   lastActionMessage = signal('');
@@ -25,14 +30,30 @@ export class PortalComponent {
 
   constructor() {
     const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { employee: Funcionario; response: BaterPontoResponse; message: string; } | undefined;
+    const state = navigation?.extras.state as { response: BaterPontoResponse; message: string; } | undefined;
 
-    if (state?.employee && state?.response && state?.message) {
-      this.employee.set(state.employee);
+    // Handle one-time message from PIN pad after clocking in
+    if (state?.message) {
       this.lastActionMessage.set(state.message);
     } else {
-      // If state is lost, navigate to employee selection
-      this.router.navigate(['/']);
+      // On refresh or direct navigation, show a generic welcome message
+      this.lastActionMessage.set('Bem-vindo(a) de volta!');
+    }
+    
+    // Fetch employee data using ID from the URL to be resilient
+    const employeeId = this.route.snapshot.paramMap.get('id');
+    if (employeeId) {
+      this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
+        if (emp) {
+          this.employee.set(emp);
+        } else {
+          // If employee not found for some reason, log out.
+          this.authService.logout();
+        }
+      });
+    } else {
+      // If no ID is present, log out.
+      this.authService.logout();
     }
   }
 
@@ -73,5 +94,9 @@ export class PortalComponent {
 
   viewHolerite(): void {
     this.navigateWithState('/holerite');
+  }
+  
+  logout(): void {
+    this.authService.logout();
   }
 }

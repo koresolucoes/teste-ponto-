@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { Funcionario } from '../../models/funcionario.model';
 import { ApiService } from '../../services/api.service';
 import { SettingsService } from '../../services/settings.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -17,6 +18,7 @@ export class EmployeeListComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
   private readonly settingsService = inject(SettingsService);
+  private readonly authService = inject(AuthService);
 
   funcionarios = signal<Funcionario[]>([]);
   loading = signal(true);
@@ -31,13 +33,19 @@ export class EmployeeListComponent implements OnInit {
   constructor() {
     // Recarrega os funcionários se as configurações mudarem de não-configurado para configurado
     effect(() => {
-        if(this.isConfigured()) {
+        if(this.isConfigured() && !this.authService.loggedInEmployeeId()) {
             this.loadFuncionarios();
         }
     });
   }
 
   ngOnInit(): void {
+    const loggedInId = this.authService.loggedInEmployeeId();
+    if (loggedInId) {
+      this.router.navigate(['/pin', loggedInId]);
+      return;
+    }
+    
     if (this.isConfigured()) {
         this.loadFuncionarios();
     } else {

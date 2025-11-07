@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { finalize } from 'rxjs';
 
@@ -16,6 +16,7 @@ import { FolhaPagamentoFuncionario } from '../../models/folha-pagamento.model';
 export class HoleriteComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   employee = signal<Funcionario | null>(null);
   loading = signal(false);
@@ -46,12 +47,27 @@ export class HoleriteComponent implements OnInit {
     if (employeeFromState) {
       this.employee.set(employeeFromState);
     } else {
-      this.router.navigate(['/']);
+      const employeeId = this.route.snapshot.paramMap.get('id');
+      if (employeeId) {
+        this.apiService.getFuncionarioById(employeeId).subscribe(emp => {
+          if (emp) {
+            this.employee.set(emp);
+            this.loadHolerite(); // Trigger load after fetching employee
+          } else {
+            this.router.navigate(['/']);
+          }
+        });
+      } else {
+        this.router.navigate(['/']);
+      }
     }
   }
 
   ngOnInit(): void {
+    // Load if employee was set from state
+    if (this.employee() && !this.payslip()) {
       this.loadHolerite();
+    }
   }
 
   loadHolerite(): void {
@@ -63,8 +79,9 @@ export class HoleriteComponent implements OnInit {
 
     const mes = this.selectedMonth().toString().padStart(2, '0');
     const ano = this.selectedYear().toString();
+    const employeeId = this.employee()!.id;
     
-    this.apiService.getFolhaPagamento(mes, ano)
+    this.apiService.getFolhaPagamento(mes, ano, employeeId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response) => {
