@@ -79,14 +79,6 @@ export class PinPadComponent {
   submitPin(): void {
     if (this.pin().length !== 4 || !this.employee()) return;
 
-    // Client-side PIN validation based on fetched employee data
-    if (this.pin() !== this.employee()!.pin) {
-      this.status.set('error');
-      this.message.set('PIN incorreto. Tente novamente.');
-      this.pin.set('');
-      return;
-    }
-
     this.status.set('loading');
     this.message.set('Processando...');
 
@@ -105,8 +97,9 @@ export class PinPadComponent {
         },
         error: (err) => {
           this.status.set('error');
-          // Since PIN is validated on the client, this error is likely a communication or server issue.
-          this.message.set('Falha na comunicação. Tente novamente.');
+          // Error is now handled by the server. From a user's perspective,
+          // the most likely cause is an incorrect PIN.
+          this.message.set('PIN incorreto. Tente novamente.');
           this.pin.set('');
         },
       });

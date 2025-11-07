@@ -37,7 +37,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.timeoutId = setTimeout(() => {
       this.router.navigate(['/']);
-    }, 10000); // 10 seconds timeout
+    }, 15000); // 15 seconds timeout
   }
 
   ngOnDestroy(): void {
@@ -46,11 +46,23 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewTimeSheet(): void {
+  private navigateTo(path: string): void {
     if (this.employee()) {
-      this.router.navigate(['/espelho-ponto', this.employee()!.id], {
+      this.router.navigate([path, this.employee()!.id], {
         state: { employee: this.employee() }
       });
     }
+  }
+
+  viewTimeSheet(): void {
+    this.navigateTo('/espelho-ponto');
+  }
+
+  viewEscala(): void {
+    this.navigateTo('/escala');
+  }
+
+  viewHolerite(): void {
+    this.navigateTo('/holerite');
   }
 }

@@ -4,6 +4,8 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { Funcionario } from '../models/funcionario.model';
 import { BaterPontoRequest, BaterPontoResponse, TimeSheetEntry } from '../models/ponto.model';
 import { SettingsService } from './settings.service';
+import { Schedule } from '../models/escala.model';
+import { FolhaPagamentoResponse } from '../models/folha-pagamento.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +34,6 @@ export class ApiService {
     if (!options) {
       return throwError(() => new Error('API não configurada.'));
     }
-    // Usando a URL com proxy
     return this.http.get<Funcionario[]>(`${this.proxiedBaseUrl}/funcionarios`, options)
       .pipe(catchError((error) => this.handleError(error)));
   }
@@ -42,7 +43,6 @@ export class ApiService {
     if (!options) {
       return throwError(() => new Error('API não configurada.'));
     }
-    // Usando a URL com proxy
     return this.http.post<BaterPontoResponse>(`${this.proxiedBaseUrl}/ponto/bater-ponto`, data, options)
       .pipe(catchError((error) => this.handleError(error)));
   }
@@ -60,6 +60,35 @@ export class ApiService {
 
     return this.http.get<TimeSheetEntry[]>(`${this.proxiedBaseUrl}/ponto`, { headers: options.headers, params: params })
       .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getEscalas(data_inicio: string, data_fim: string): Observable<Schedule[]> {
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+
+     const params = options.params
+      .set('data_inicio', data_inicio)
+      .set('data_fim', data_fim);
+
+    return this.http.get<Schedule[]>(`${this.proxiedBaseUrl}/escalas`, { headers: options.headers, params: params })
+        .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getFolhaPagamento(mes: string, ano: string): Observable<FolhaPagamentoResponse> {
+    const options = this.getOptions();
+    if (!options) {
+        return throwError(() => new Error('API não configurada.'));
+    }
+
+    const params = options.params
+        .set('action', 'resumo')
+        .set('mes', mes)
+        .set('ano', ano);
+    
+    return this.http.get<FolhaPagamentoResponse>(`${this.proxiedBaseUrl}/folha-pagamento`, { headers: options.headers, params: params })
+        .pipe(catchError((error) => this.handleError(error)));
   }
 
   private handleError(error: any): Observable<never> {
