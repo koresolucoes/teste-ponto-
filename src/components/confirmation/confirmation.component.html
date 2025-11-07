@@ -6,7 +6,7 @@
       </svg>
       <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{ message() }}</h1>
       <p class="text-lg text-slate-400 mt-2">Olá, {{ emp.name.split(' ')[0] }}! Seu ponto foi registrado.</p>
-      <p class="text-slate-400 mt-1">Horário: {{ new Date() | date:'shortTime' }}</p>
+      <p class="text-slate-400 mt-1">Horário: {{ currentTime | date:'shortTime' }}</p>
 
       <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
         <button (click)="viewTimeSheet()" class="w-full sm:w-auto bg-sky-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors duration-200">

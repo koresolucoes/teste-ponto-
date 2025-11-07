@@ -17,6 +17,7 @@ export class ConfirmationComponent implements OnInit, OnDestroy {
   employee = signal<Funcionario | null>(null);
   response = signal<BaterPontoResponse | null>(null);
   message = signal('');
+  readonly currentTime = new Date();
 
   private timeoutId: any;
 
