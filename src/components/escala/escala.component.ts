@@ -13,6 +13,7 @@ interface DailySchedule {
     shift: Shift | null;
     isDayOff: boolean;
     hasSchedule: boolean;
+    isToday: boolean;
 }
 
 @Component({
@@ -35,6 +36,7 @@ export class EscalaComponent implements OnInit {
 
   weeklySchedule = computed<DailySchedule[]>(() => {
     const now = new Date();
+    const todayString = now.toDateString();
     const dayOfWeek = now.getDay();
     const startDate = new Date(now);
     startDate.setDate(now.getDate() - dayOfWeek);
@@ -57,7 +59,8 @@ export class EscalaComponent implements OnInit {
             dayName: this.daysOfWeek[date.getDay()],
             shift: shift || null,
             isDayOff: shift?.is_day_off || false,
-            hasSchedule: !!shift
+            hasSchedule: !!shift,
+            isToday: date.toDateString() === todayString
         };
     });
   });

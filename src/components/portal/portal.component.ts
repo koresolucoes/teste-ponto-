@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 
@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-portal',
   templateUrl: './portal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, DatePipe],
+  imports: [CommonModule, DatePipe],
 })
 export class PortalComponent {
   private readonly router = inject(Router);

@@ -22,8 +22,8 @@
         <div class="space-y-4">
             @for(day of weeklySchedule(); track day.date) {
                 <div class="p-4 rounded-lg flex items-center justify-between"
-                     [class.bg-slate-700/50]="day.date.toDateString() === (new Date()).toDateString()"
-                     [class.bg-slate-700/20]="day.date.toDateString() !== (new Date()).toDateString()">
+                     [class.bg-slate-700/50]="day.isToday"
+                     [class.bg-slate-700/20]="!day.isToday">
                     <div class="flex items-center">
                         <div class="w-16 text-center mr-4">
                             <p class="font-bold text-xl text-slate-200">{{ day.date | date:'dd' }}</p>
@@ -31,8 +31,8 @@
                         </div>
                         <div>
                             <p class="font-semibold text-lg" 
-                                [class.text-slate-100]="day.date.toDateString() === (new Date()).toDateString()"
-                                [class.text-slate-300]="day.date.toDateString() !== (new Date()).toDateString()">
+                                [class.text-slate-100]="day.isToday"
+                                [class.text-slate-300]="!day.isToday">
                                 {{ day.dayName }}
                             </p>
                         </div>
