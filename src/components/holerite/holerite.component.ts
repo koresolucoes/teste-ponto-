@@ -1,17 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { Funcionario } from '../../models/funcionario.model';
 import { ApiService } from '../../services/api.service';
-import { FolhaPagamentoFuncionario } from '../../models/folha-pagamento.model';
+import { FolhaPagamentoFuncionario, FolhaPagamentoResponse } from '../../models/folha-pagamento.model';
 
 @Component({
   selector: 'app-holerite',
   templateUrl: './holerite.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, CurrencyPipe],
+  imports: [CommonModule, RouterLink, CurrencyPipe, FormsModule],
 })
 export class HoleriteComponent implements OnInit {
   private readonly apiService = inject(ApiService);
@@ -25,6 +26,10 @@ export class HoleriteComponent implements OnInit {
   
   selectedMonth = signal(new Date().getMonth() + 1);
   selectedYear = signal(new Date().getFullYear());
+  
+  // Sinais para depuração do payload
+  rawPayslipResponse = signal<FolhaPagamentoResponse | null>(null);
+  showDebugPayload = signal(false);
 
   months = signal([
     { value: 1, name: 'Janeiro' }, { value: 2, name: 'Fevereiro' },
@@ -38,6 +43,13 @@ export class HoleriteComponent implements OnInit {
   years = computed(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 5 }, (_, i) => currentYear - i);
+  });
+  
+  formattedDebugPayload = computed(() => {
+    if (this.rawPayslipResponse()) {
+      return JSON.stringify(this.rawPayslipResponse(), null, 2);
+    }
+    return 'Nenhum payload para exibir.';
   });
 
   constructor() {
@@ -76,6 +88,7 @@ export class HoleriteComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.payslip.set(null);
+    this.rawPayslipResponse.set(null);
 
     const mes = this.selectedMonth().toString().padStart(2, '0');
     const ano = this.selectedYear().toString();
@@ -85,6 +98,7 @@ export class HoleriteComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response) => {
+          this.rawPayslipResponse.set(response);
           const employeePayslip = response.empleados.find(e => e.employeeId === this.employee()!.id);
           this.payslip.set(employeePayslip || null);
         },
@@ -98,5 +112,9 @@ export class HoleriteComponent implements OnInit {
 
   onYearChange(event: Event): void {
     this.selectedYear.set(Number((event.target as HTMLSelectElement).value));
+  }
+  
+  toggleDebugPayload(): void {
+    this.showDebugPayload.update(v => !v);
   }
 }
