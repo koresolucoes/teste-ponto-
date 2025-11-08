@@ -4,9 +4,10 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 
 import { Funcionario } from '../../models/funcionario.model';
-import { BaterPontoResponse, BaterPontoStatus, TimeSheetEntry } from '../../models/ponto.model';
+import { BaterPontoRequest, BaterPontoResponse, BaterPontoStatus, TimeSheetEntry } from '../../models/ponto.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { Coordinates, GeolocationService } from '../../services/geolocation.service';
 
 @Component({
   selector: 'app-portal',
@@ -19,6 +20,7 @@ export class PortalComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly apiService = inject(ApiService);
   private readonly authService = inject(AuthService);
+  private readonly geolocationService = inject(GeolocationService);
 
   employee = signal<Funcionario | null>(null);
   lastActionMessage = signal('Carregando último registro...');
@@ -141,14 +143,33 @@ export class PortalComponent {
     }
   }
 
-  submitModalPin(): void {
+  async submitModalPin(): Promise<void> {
     if (this.modalPin().length !== 4 || !this.employee()) return;
 
     this.modalStatus.set('loading');
+    this.modalMessage.set('Obtendo localização...');
+
+    let location: Coordinates | null = null;
+    try {
+      location = await this.geolocationService.getCurrentPositionAsPromise();
+    } catch (error: any) {
+      this.modalStatus.set('error');
+      this.modalMessage.set(error.message || 'Falha ao obter localização.');
+      this.modalPin.set(''); // Limpa o PIN no erro
+      return;
+    }
+
     this.modalMessage.set('Processando...');
 
     const employeeId = this.employee()!.id;
-    this.apiService.baterPonto({ employeeId, pin: this.modalPin() })
+    const requestData: BaterPontoRequest = {
+      employeeId,
+      pin: this.modalPin(),
+      latitude: location.latitude,
+      longitude: location.longitude,
+    };
+
+    this.apiService.baterPonto(requestData)
       .pipe(finalize(() => {
           this.modalPin.set('');
       }))

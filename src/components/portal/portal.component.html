@@ -26,7 +26,7 @@
       <div class="lg:col-span-2">
         <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
           <h2 class="text-xl font-semibold text-slate-200 mb-2">Registro de Ponto</h2>
-          <p class="text-slate-400 mb-6">Pronto para iniciar ou finalizar suas atividades?</p>
+          <p class="text-slate-400 mb-6">Sua localização será solicitada para validar o registro.</p>
 
           <div class="bg-slate-700/40 rounded-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -94,7 +94,7 @@
 
 <!-- Modal Bater Ponto -->
 @if (showPinModal()) {
-  <div @fade class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 fade-in" (click)="closeModal()">
+  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 fade-in" (click)="closeModal()">
     <div class="w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up" (click)="$event.stopPropagation()">
       <h3 class="text-xl font-semibold text-center text-slate-100 mb-2">Confirmar Ação</h3>
       <p class="text-center text-slate-400 mb-6">Digite seu PIN para bater o ponto.</p>
