@@ -1,20 +1,96 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Ponto Móvel Gastronômico
 
-# Run and deploy your AI Studio app
+## 1. Descrição
 
-This contains everything you need to run your app locally.
+O **Ponto Móvel Gastronômico** é um aplicativo de ponto móvel progressivo (PWA) desenvolvido em Angular para funcionários do setor de restaurantes. Integrado a um sistema ERP gastronômico, ele permite que os funcionários registrem suas entradas, saídas e pausas de forma rápida e segura, além de fornecer acesso a informações essenciais de RH.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1tzyI9gKh2crMsStMng2kdTliTizWiycQ
+O aplicativo foi projetado com uma interface moderna e responsiva, utilizando Tailwind CSS, e é otimizado para uma experiência de usuário fluida em qualquer dispositivo.
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 2. Funcionalidades Principais
 
+- **Seleção de Funcionário e Autenticação por PIN:**
+  - Tela inicial exibe uma lista de funcionários cadastrados.
+  - Autenticação segura através de um PIN pessoal de 4 dígitos para cada funcionário.
+  - A sessão do usuário é mantida para acesso rápido ao portal.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- **Portal do Colaborador:**
+  - Hub central com acesso rápido a todas as funcionalidades.
+  - Exibe a última ação de ponto registrada (entrada, saída, etc.).
+  - Logout seguro.
+
+- **Registro de Ponto (`Bater Ponto`):**
+  - Funcionalidade principal que permite registrar início de turno, início de pausa, fim de pausa e fim de turno.
+  - Ação confirmada via modal com inserção do PIN, garantindo segurança.
+
+- **Espelho de Ponto:**
+  - Visualização detalhada dos registros de ponto.
+  - Filtros por "Esta Semana" e "Este Mês".
+  - Calcula e exibe o total de horas trabalhadas no período selecionado.
+
+- **Minha Escala:**
+  - Exibe a escala de trabalho do funcionário para a semana corrente.
+  - Mostra os horários de turnos e dias de folga de forma clara.
+
+- **Meus Holerites:**
+  - Acesso aos resumos da folha de pagamento (holerites).
+  - Permite a seleção de mês e ano para consulta de períodos anteriores.
+  - Detalha horas trabalhadas, horas extras, pagamento base e total a receber.
+
+- **Solicitação de Ausências:**
+  - Permite que os funcionários solicitem ausências como férias, folgas, faltas justificadas e atestados.
+  - Formulário para submeter novas solicitações com datas, motivo e **anexo de arquivos** (PDF, imagens, etc.).
+  - Histórico de todas as solicitações com status (Pendente, Aprovado, Rejeitado).
+
+- **Configurações da API:**
+  - Página dedicada para configurar as credenciais (`restaurantId` e `apiKey`) necessárias para a comunicação com o ERP.
+  - As credenciais são salvas de forma segura no `localStorage` do navegador.
+
+---
+
+## 3. Tech Stack
+
+- **Framework:** Angular v20+ (utilizando componentes Standalone e arquitetura Zoneless para alta performance).
+- **Gerenciamento de Estado:** Angular Signals.
+- **Roteamento:** `@angular/router` com `withHashLocation`.
+- **Estilização:** Tailwind CSS.
+- **Requisições HTTP:** `@angular/common/http` com `HttpClient`.
+- **Reatividade:** RxJS.
+- **Linguagem:** TypeScript.
+
+---
+
+## 4. Configuração e Inicialização
+
+Para que o aplicativo funcione, é necessário primeiro configurar as credenciais da API.
+
+1.  Acesse a página inicial.
+2.  Clique no ícone de engrenagem (⚙️) no rodapé para navegar até a tela de **Configurações**.
+3.  Insira o **Restaurant ID** e a **Chave da API (API Key)** fornecidos pelo sistema ERP.
+4.  Clique em **Salvar**.
+
+Após salvar, o aplicativo irá carregar a lista de funcionários e estará pronto para uso.
+
+---
+
+## 5. Integração com a API
+
+O aplicativo se comunica com uma API RESTful para buscar e enviar dados. Todos os endpoints estão localizados sob a base `https://gastro.koresolucoes.com.br/api/rh`.
+
+**Parâmetros Comuns:**
+- `restaurantId`: ID do restaurante, enviado como query parameter.
+- `Authorization`: `Bearer <API_KEY>`, enviado no cabeçalho HTTP.
+
+### Endpoints Utilizados:
+
+| Método | Endpoint                    | Descrição                                                                 |
+| :----- | :-------------------------- | :------------------------------------------------------------------------ |
+| `GET`  | `/funcionarios`             | Lista todos os funcionários ativos.                                       |
+| `POST` | `/verificar-pin`            | Valida o PIN de um funcionário para login.                                |
+| `POST` | `/ponto/bater-ponto`        | Registra um evento de ponto (entrada, pausa, etc.).                       |
+| `GET`  | `/ponto`                    | Obtém os registros de ponto de um funcionário para um período.            |
+| `GET`  | `/escalas`                  | Obtém as escalas de trabalho publicadas para um período.                  |
+| `GET`  | `/folha-pagamento`          | Obtém os dados do holerite de um funcionário para um mês/ano.             |
+| `GET`  | `/ausencias`                | Lista as solicitações de ausência de um funcionário.                      |
+| `POST` | `/ausencias`                | Cria uma nova solicitação de ausência (com suporte a anexos em base64).   |
