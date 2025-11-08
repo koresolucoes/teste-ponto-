@@ -8,6 +8,7 @@ export interface Ausencia {
   start_date: string;
   end_date: string;
   reason: string | null;
+  attachment_url?: string;
   employees?: { name: string };
 }
 
@@ -17,4 +18,6 @@ export interface CriarAusenciaRequest {
   start_date: string;
   end_date: string;
   reason?: string;
+  attachment?: string;
+  attachment_filename?: string;
 }

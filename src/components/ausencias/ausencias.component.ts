@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -28,7 +28,9 @@ export class AusenciasComponent implements OnInit {
   formVisible = signal(false);
   formSubmitting = signal(false);
   formError = signal<string | null>(null);
+  selectedFile = signal<{ name: string; content: string; } | null>(null);
 
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   requestForm: FormGroup;
   
   readonly requestTypes: AusenciaRequestType[] = ['Férias', 'Folga', 'Falta Justificada', 'Atestado'];
@@ -90,7 +92,31 @@ export class AusenciasComponent implements OnInit {
     if (!this.formVisible()) {
       this.requestForm.reset({ request_type: this.requestTypes[0] });
       this.formError.set(null);
+      this.clearFile();
     }
+  }
+
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+            const base64Content = e.target.result.split(',')[1];
+            this.selectedFile.set({
+                name: file.name,
+                content: base64Content
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+  }
+
+  clearFile(): void {
+      this.selectedFile.set(null);
+      if (this.fileInput) {
+        this.fileInput.nativeElement.value = '';
+      }
   }
 
   submitRequest(): void {
@@ -109,6 +135,12 @@ export class AusenciasComponent implements OnInit {
       end_date: formValue.end_date,
       reason: formValue.reason || undefined
     };
+
+    const file = this.selectedFile();
+    if (file) {
+      requestData.attachment = file.content;
+      requestData.attachment_filename = file.name;
+    }
 
     this.apiService.solicitarAusencia(requestData)
       .pipe(finalize(() => this.formSubmitting.set(false)))
