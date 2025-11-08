@@ -31,25 +31,24 @@ export class EmployeeListComponent implements OnInit {
   ];
 
   constructor() {
-    // Recarrega os funcionários se as configurações mudarem de não-configurado para configurado
+    // This effect is the single source of truth for loading employees.
+    // It runs when the app is configured and the user isn't logged in.
     effect(() => {
-        if(this.isConfigured() && !this.authService.loggedInEmployeeId()) {
+        if (this.isConfigured() && !this.authService.loggedInEmployeeId()) {
             this.loadFuncionarios();
+        } else if (!this.isConfigured()) {
+            // If the app is not configured, ensure we are not in a loading state.
+            this.loading.set(false);
         }
     });
   }
 
   ngOnInit(): void {
+    // On initialization, the primary concern is redirecting if a session already exists.
+    // The effect will handle loading data.
     const loggedInId = this.authService.loggedInEmployeeId();
     if (loggedInId) {
       this.router.navigate(['/portal', loggedInId]);
-      return;
-    }
-    
-    if (this.isConfigured()) {
-        this.loadFuncionarios();
-    } else {
-        this.loading.set(false);
     }
   }
 
