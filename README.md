@@ -75,7 +75,18 @@ Após a leitura bem-sucedida, o aplicativo salvará as credenciais e carregará 
 
 ### Formato do QR Code
 
-O QR Code deve conter um objeto JSON com as seguintes chaves:
+O aplicativo suporta dois formatos para o conteúdo do QR Code para garantir flexibilidade:
+
+**Formato 1: String Simples (Recomendado)**
+
+Uma string com o ID do restaurante e a chave da API, separados por um ponto e vírgula (`;`).
+
+`SEU_USER_ID;SUA_CHAVE_DE_API_EXTERNA`
+
+**Formato 2: JSON (Compatibilidade)**
+
+Um objeto JSON com as chaves `restaurantId` e `apiKey`.
+
 ```json
 {
   "restaurantId": "SEU_USER_ID",
