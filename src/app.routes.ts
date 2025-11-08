@@ -13,17 +13,17 @@ export const APP_ROUTES: Routes = [
   {
     path: '',
     component: EmployeeListComponent,
-    title: 'Ponto Móvel - Selecionar Funcionário',
+    title: 'Chefe\'s Time - Selecionar Funcionário',
   },
   {
     path: 'scan',
     component: QrScannerComponent,
-    title: 'Ponto Móvel - Escanear QR Code',
+    title: 'Chefe\'s Time - Escanear QR Code',
   },
   {
     path: 'pin/:id',
     component: PinPadComponent,
-    title: 'Ponto Móvel - Inserir PIN',
+    title: 'Chefe\'s Time - Inserir PIN',
   },
   {
     path: 'portal/:id',
@@ -34,7 +34,7 @@ export const APP_ROUTES: Routes = [
   {
     path: 'espelho-ponto/:id',
     component: TimeSheetComponent,
-    title: 'Ponto Móvel - Espelho de Ponto',
+    title: 'Chefe\'s Time - Espelho de Ponto',
     canActivate: [authGuard],
   },
   {

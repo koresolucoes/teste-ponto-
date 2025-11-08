@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+// FIX: Import AbstractControl and ValidationErrors for correct validator typing.
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { Funcionario } from '../../models/funcionario.model';
@@ -47,7 +48,8 @@ export class AusenciasComponent implements OnInit {
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],
       reason: [''],
-    }, { validator: this.dateRangeValidator });
+    // FIX: The property for validators in FormBuilder options is 'validators' (plural), not 'validator'.
+    }, { validators: this.dateRangeValidator });
   }
 
   ngOnInit(): void {
@@ -69,7 +71,7 @@ export class AusenciasComponent implements OnInit {
     }
   }
 
-  dateRangeValidator(group: FormGroup) {
+  dateRangeValidator(group: AbstractControl): ValidationErrors | null {
     const start = group.get('start_date')?.value;
     const end = group.get('end_date')?.value;
     return start && end && new Date(start) > new Date(end) ? { invalidRange: true } : null;

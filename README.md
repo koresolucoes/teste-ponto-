@@ -1,8 +1,8 @@
-# Ponto Móvel Gastronômico
+# Chefe's Time
 
 ## 1. Descrição
 
-O **Ponto Móvel Gastronômico** é um aplicativo de ponto móvel progressivo (PWA) desenvolvido em Angular para funcionários do setor de restaurantes. Integrado a um sistema ERP gastronômico, ele permite que os funcionários registrem suas entradas, saídas e pausas de forma rápida e segura, além de fornecer acesso a informações essenciais de RH.
+O **Chefe's Time** é um aplicativo de ponto móvel progressivo (PWA) desenvolvido em Angular para funcionários do setor de restaurantes. Integrado a um sistema ERP gastronômico, ele permite que os funcionários registrem suas entradas, saídas e pausas de forma rápida e segura, além de fornecer acesso a informações essenciais de RH.
 
 O aplicativo foi projetado com uma interface moderna e responsiva, utilizando Tailwind CSS, e é otimizado para uma experiência de usuário fluida em qualquer dispositivo.
 
