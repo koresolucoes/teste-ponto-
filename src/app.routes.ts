@@ -7,6 +7,7 @@ import { HoleriteComponent } from './components/holerite/holerite.component';
 import { PortalComponent } from './components/portal/portal.component';
 import { authGuard } from './services/auth.guard';
 import { PinPadComponent } from './components/pin-pad/pin-pad.component';
+import { AusenciasComponent } from './components/ausencias/ausencias.component';
 
 export const APP_ROUTES: Routes = [
   {
@@ -41,6 +42,12 @@ export const APP_ROUTES: Routes = [
     path: 'holerite/:id',
     component: HoleriteComponent,
     title: 'Portal do Colaborador - Meus Holerites',
+    canActivate: [authGuard],
+  },
+  {
+    path: 'ausencias/:id',
+    component: AusenciasComponent,
+    title: 'Portal do Colaborador - Minhas Ausências',
     canActivate: [authGuard],
   },
   {

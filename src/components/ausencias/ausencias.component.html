@@ -1,0 +1,120 @@
+<div class="min-h-screen w-full flex flex-col p-4 sm:p-6 lg:p-8 fade-in">
+  @if (employee(); as emp) {
+    <header class="w-full max-w-4xl mx-auto mb-8">
+      <div class="flex items-center gap-3">
+        <a [routerLink]="['/portal', emp.id]" class="p-2 text-slate-400 hover:bg-slate-700/50 hover:text-sky-400 rounded-full transition-all duration-200">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        </a>
+        <h1 class="text-3xl font-bold text-slate-100 tracking-tight">Minhas Ausências</h1>
+      </div>
+      <p class="text-slate-400 ml-11">{{ emp.name }}</p>
+    </header>
+
+    <main class="w-full max-w-4xl mx-auto">
+      <!-- Botão para Nova Solicitação -->
+      <div class="mb-8 text-right">
+        <button (click)="toggleFormVisibility()" class="inline-flex items-center gap-2 px-6 py-3 bg-sky-600 text-white font-bold rounded-lg hover:bg-sky-500 transition-colors shadow-lg transform hover:scale-105">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+           <span>Nova Solicitação</span>
+        </button>
+      </div>
+      
+      <!-- Formulário de Nova Solicitação (condicional) -->
+      @if (formVisible()) {
+        <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 mb-8 scale-up">
+           <h2 class="text-2xl font-semibold text-slate-100 mb-6">Solicitar Ausência</h2>
+           <form [formGroup]="requestForm" (ngSubmit)="submitRequest()" class="space-y-6">
+              <div>
+                <label for="request_type" class="block mb-2 text-sm font-medium text-slate-300">Tipo de Solicitação</label>
+                <select id="request_type" formControlName="request_type" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                  @for(type of requestTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="start_date" class="block mb-2 text-sm font-medium text-slate-300">Data de Início</label>
+                    <input type="date" id="start_date" formControlName="start_date" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </div>
+                <div>
+                    <label for="end_date" class="block mb-2 text-sm font-medium text-slate-300">Data de Fim</label>
+                    <input type="date" id="end_date" formControlName="end_date" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                </div>
+              </div>
+              @if(requestForm.hasError('invalidRange')) {
+                <p class="text-rose-400 text-sm -mt-2">A data de fim não pode ser anterior à data de início.</p>
+              }
+              <div>
+                <label for="reason" class="block mb-2 text-sm font-medium text-slate-300">Motivo (Opcional)</label>
+                <textarea id="reason" formControlName="reason" rows="3" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Ex: Consulta médica, viagem em família, etc."></textarea>
+              </div>
+
+              @if (formError()) {
+                <div class="bg-rose-900/50 text-rose-200 px-4 py-2 rounded-lg text-center text-sm">
+                  {{ formError() }}
+                </div>
+              }
+              
+              <div class="flex items-center gap-4 pt-2">
+                <button type="button" (click)="toggleFormVisibility()" class="w-1/2 text-center px-6 py-3 border border-slate-600 text-slate-300 font-bold rounded-lg hover:bg-slate-700/50 transition-colors">
+                  Cancelar
+                </button>
+                <button type="submit" [disabled]="requestForm.invalid || formSubmitting()" class="w-1/2 px-6 py-3 bg-sky-600 text-white font-bold rounded-lg hover:bg-sky-500 transition-colors disabled:bg-slate-600 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center justify-center">
+                  @if (formSubmitting()) {
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>Enviando...</span>
+                  } @else {
+                    <span>Enviar Solicitação</span>
+                  }
+                </button>
+              </div>
+           </form>
+        </div>
+      }
+
+      <!-- Lista de Solicitações -->
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl shadow-2xl p-6 sm:p-8 scale-up">
+        <h2 class="text-2xl font-semibold text-slate-100 mb-6 border-b border-slate-700 pb-4">Histórico de Solicitações</h2>
+        @if (loading()) {
+          <div class="flex justify-center items-center py-10">
+            <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span class="text-slate-300 text-lg">Carregando histórico...</span>
+          </div>
+        } @else if (error()) {
+          <div class="text-center py-10 text-rose-300">{{ error() }}</div>
+        } @else if (ausencias().length > 0) {
+          <div class="space-y-4">
+            @for(item of ausencias(); track item.id) {
+              <div class="p-4 rounded-lg bg-slate-700/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex-grow">
+                   <div class="flex items-center gap-4 mb-2">
+                     <span [class]="'px-3 py-1 rounded-full text-xs font-semibold ' + statusMap()[item.status].class">{{ statusMap()[item.status].text }}</span>
+                     <p class="font-semibold text-lg text-slate-100">{{ item.request_type }}</p>
+                   </div>
+                   <p class="font-mono text-slate-300">
+                     {{ item.start_date | date:'dd/MM/yyyy' }}
+                     @if(item.start_date !== item.end_date) {
+                        <span> - {{ item.end_date | date:'dd/MM/yyyy' }}</span>
+                     }
+                   </p>
+                   @if (item.reason) {
+                     <p class="text-sm text-slate-400 mt-2 italic">"{{ item.reason }}"</p>
+                   }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="text-center py-10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            <p class="mt-4 text-slate-400">Nenhuma solicitação de ausência encontrada.</p>
+          </div>
+        }
+      </div>
+    </main>
+
+  } @else {
+    <div class="text-center text-slate-300">Carregando...</div>
+  }
+</div>

@@ -7,6 +7,7 @@ import { SettingsService } from './settings.service';
 import { Schedule } from '../models/escala.model';
 import { FolhaPagamentoResponse } from '../models/folha-pagamento.model';
 import { VerificarPinRequest, VerificarPinResponse } from '../models/auth.model';
+import { Ausencia, CriarAusenciaRequest } from '../models/ausencia.model';
 
 @Injectable({
   providedIn: 'root',
@@ -127,6 +128,27 @@ export class ApiService {
     
     return this.http.get<FolhaPagamentoResponse>(`${this.proxiedBaseUrl}/folha-pagamento`, { headers: options.headers, params: params })
         .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getAusencias(employeeId: string): Observable<Ausencia[]> {
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+
+    const params = options.params.set('employeeId', employeeId);
+
+    return this.http.get<Ausencia[]>(`${this.proxiedBaseUrl}/ausencias`, { headers: options.headers, params: params })
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  solicitarAusencia(data: CriarAusenciaRequest): Observable<Ausencia> {
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+    return this.http.post<Ausencia>(`${this.proxiedBaseUrl}/ausencias`, data, options)
+      .pipe(catchError((error) => this.handleError(error)));
   }
 
   private handleError(error: any): Observable<never> {

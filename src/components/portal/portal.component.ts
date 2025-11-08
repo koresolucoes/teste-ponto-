@@ -169,6 +169,7 @@ export class PortalComponent {
   viewTimeSheet(): void { this.navigateWithState('/espelho-ponto'); }
   viewEscala(): void { this.navigateWithState('/escala'); }
   viewHolerite(): void { this.navigateWithState('/holerite'); }
+  viewAusencias(): void { this.navigateWithState('/ausencias'); }
   
   logout(): void {
     this.authService.logout();
