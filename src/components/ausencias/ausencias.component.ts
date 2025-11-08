@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+// Fix: Import FormControl and remove FormBuilder, as it's no longer used.
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { Funcionario } from '../../models/funcionario.model';
@@ -18,7 +19,6 @@ export class AusenciasComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly fb = inject(FormBuilder);
 
   employee = signal<Funcionario | null>(null);
   ausencias = signal<Ausencia[]>([]);
@@ -42,11 +42,12 @@ export class AusenciasComponent implements OnInit {
   }));
   
   constructor() {
-    this.requestForm = this.fb.group({
-      request_type: [this.requestTypes[0], Validators.required],
-      start_date: ['', Validators.required],
-      end_date: ['', Validators.required],
-      reason: [''],
+    // Fix: Instantiate FormGroup and FormControl directly to avoid FormBuilder injection issues.
+    this.requestForm = new FormGroup({
+      request_type: new FormControl(this.requestTypes[0], Validators.required),
+      start_date: new FormControl('', Validators.required),
+      end_date: new FormControl('', Validators.required),
+      reason: new FormControl(''),
     }, { validators: this.dateRangeValidator });
   }
 
@@ -69,11 +70,10 @@ export class AusenciasComponent implements OnInit {
     }
   }
 
-  // FIX: Renamed validator parameter to `group` to resolve a cryptic TypeScript error.
   // This validator checks if the end_date is before the start_date.
-  dateRangeValidator(group: AbstractControl): ValidationErrors | null {
-    const start = group.get('start_date')?.value;
-    const end = group.get('end_date')?.value;
+  dateRangeValidator(control: AbstractControl): ValidationErrors | null {
+    const start = control.get('start_date')?.value;
+    const end = control.get('end_date')?.value;
     return start && end && new Date(start) > new Date(end) ? { invalidRange: true } : null;
   }
 

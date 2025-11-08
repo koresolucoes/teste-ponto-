@@ -165,7 +165,10 @@ export class ApiService {
       errorMessage = `Erro: ${error.error.message}`;
     } else {
       // Erro do lado do servidor
-      if (error.status === 401 || error.status === 403) {
+      // Procura por uma mensagem de erro específica no corpo da resposta
+      if (error.error?.error?.message && typeof error.error.error.message === 'string') {
+        errorMessage = error.error.error.message;
+      } else if (error.status === 401 || error.status === 403) {
         errorMessage = 'Credenciais da API inválidas ou não fornecidas. Verifique as configurações.';
          if (error.url?.includes('ponto') || error.url?.includes('verificar-pin')) {
            errorMessage = 'PIN incorreto.';
