@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { EmployeeListComponent } from './components/employee-list/employee-list.component';
-import { SettingsComponent } from './components/settings/settings.component';
 import { TimeSheetComponent } from './components/time-sheet/time-sheet.component';
 import { EscalaComponent } from './components/escala/escala.component';
 import { HoleriteComponent } from './components/holerite/holerite.component';
@@ -8,12 +7,18 @@ import { PortalComponent } from './components/portal/portal.component';
 import { authGuard } from './services/auth.guard';
 import { PinPadComponent } from './components/pin-pad/pin-pad.component';
 import { AusenciasComponent } from './components/ausencias/ausencias.component';
+import { QrScannerComponent } from './components/qr-scanner/qr-scanner.component';
 
 export const APP_ROUTES: Routes = [
   {
     path: '',
     component: EmployeeListComponent,
     title: 'Ponto Móvel - Selecionar Funcionário',
+  },
+  {
+    path: 'scan',
+    component: QrScannerComponent,
+    title: 'Ponto Móvel - Escanear QR Code',
   },
   {
     path: 'pin/:id',
@@ -49,11 +54,6 @@ export const APP_ROUTES: Routes = [
     component: AusenciasComponent,
     title: 'Portal do Colaborador - Minhas Ausências',
     canActivate: [authGuard],
-  },
-  {
-    path: 'settings',
-    component: SettingsComponent,
-    title: 'Ponto Móvel - Configurações',
   },
   {
     path: '**',

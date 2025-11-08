@@ -1,0 +1,33 @@
+<div class="min-h-screen w-full flex flex-col items-center justify-center p-4 fade-in">
+  <div class="w-full max-w-md mx-auto text-center">
+    <header class="mb-8">
+       <h1 class="text-3xl font-bold text-slate-100 tracking-tight">Escanear QR Code</h1>
+       <p class="mt-2 text-lg text-slate-400">Aponte a câmera para o QR Code de configuração</p>
+    </header>
+    
+    <div class="w-full aspect-square max-w-sm bg-slate-800 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-lg relative">
+      <div id="qr-reader" class="w-full h-full"></div>
+      
+      <!-- Overlay Styling -->
+      @if (isScanning()) {
+        <div class="absolute inset-0 pointer-events-none">
+          <div class="absolute top-1/2 left-1/2 w-[250px] h-[250px] -translate-x-1/2 -translate-y-1/2 rounded-lg border-4 border-sky-400/50"></div>
+        </div>
+      }
+    </div>
+
+    @if (scanError()) {
+      <div class="mt-6 bg-rose-900/50 border border-rose-700 text-rose-200 px-4 py-3 rounded-lg relative scale-up" role="alert">
+        <strong class="font-bold">Erro!</strong>
+        <span class="block sm:inline ml-2">{{ scanError() }}</span>
+        <button (click)="startScanner()" class="mt-4 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors">
+          Escanear Novamente
+        </button>
+      </div>
+    }
+
+    <div class="mt-8">
+      <a routerLink="/" class="text-slate-400 hover:text-slate-200 transition-colors">Voltar para o início</a>
+    </div>
+  </div>
+</div>

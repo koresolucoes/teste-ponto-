@@ -6,11 +6,31 @@
       </svg>
       <h1 class="text-4xl font-bold text-slate-100 tracking-tight">Ponto Móvel</h1>
     </div>
-    <p class="mt-2 text-lg text-slate-400">Selecione seu perfil para continuar</p>
+    <p class="mt-2 text-lg text-slate-400">
+      @if (isConfigured()) {
+        <span>Selecione seu perfil para continuar</span>
+      } @else {
+        <span>Pronto para começar</span>
+      }
+    </p>
   </header>
 
   <div class="w-full max-w-4xl mx-auto">
-    @if (loading()) {
+    @if (!isConfigured()) {
+      <div class="text-center py-10 bg-slate-800/50 rounded-lg p-8 scale-up">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        </svg>
+        <h2 class="mt-6 text-2xl font-bold text-slate-100">Bem-vindo(a)!</h2>
+        <p class="mt-2 text-slate-400">Para começar, configure o aplicativo escaneando o QR Code do seu restaurante.</p>
+        <a routerLink="/scan" class="mt-8 inline-flex items-center gap-3 px-6 py-3 bg-sky-600 text-white font-bold rounded-lg hover:bg-sky-500 transition-all duration-200 transform hover:scale-105">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Escanear QR Code</span>
+        </a>
+      </div>
+    } @else if (loading()) {
       <div class="flex justify-center items-center py-10">
         <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -22,17 +42,9 @@
       <div class="bg-rose-900/50 border border-rose-700 text-rose-200 px-4 py-3 rounded-lg relative text-center scale-up" role="alert">
         <strong class="font-bold">Ocorreu um erro!</strong>
         <span class="block sm:inline ml-2">{{ error() }}</span>
-        @if (!isConfigured()) {
-          <p class="mt-2">
-            <a routerLink="/settings" class="font-bold underline text-sky-300 hover:text-sky-200 transition-colors">
-              Ir para Configurações
-            </a>
-          </p>
-        } @else {
-           <button (click)="loadFuncionarios()" class="mt-4 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors">
-            Tentar Novamente
-           </button>
-        }
+         <button (click)="loadFuncionarios()" class="mt-4 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg transition-colors">
+          Tentar Novamente
+         </button>
       </div>
     } @else if (funcionarios().length > 0) {
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -58,13 +70,4 @@
       </div>
     }
   </div>
-
-  <footer class="w-full max-w-4xl mx-auto mt-8 text-center">
-    <a routerLink="/settings" class="text-slate-500 hover:text-sky-400 transition-colors">
-       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    </a>
-  </footer>
 </div>

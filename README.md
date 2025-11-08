@@ -43,9 +43,9 @@ O aplicativo foi projetado com uma interface moderna e responsiva, utilizando Ta
   - Formulário para submeter novas solicitações com datas, motivo e **anexo de arquivos** (PDF, imagens, etc.).
   - Histórico de todas as solicitações com status (Pendente, Aprovado, Rejeitado).
 
-- **Configurações da API:**
-  - Página dedicada para configurar as credenciais (`restaurantId` e `apiKey`) necessárias para a comunicação com o ERP.
-  - As credenciais são salvas de forma segura no `localStorage` do navegador.
+- **Configuração por QR Code:**
+  - Configuração inicial do aplicativo de forma rápida e segura através da leitura de um QR Code.
+  - Elimina a necessidade de inserção manual de credenciais.
 
 ---
 
@@ -58,19 +58,30 @@ O aplicativo foi projetado com uma interface moderna e responsiva, utilizando Ta
 - **Requisições HTTP:** `@angular/common/http` com `HttpClient`.
 - **Reatividade:** RxJS.
 - **Linguagem:** TypeScript.
+- **QR Code Scanning:** `html5-qrcode`.
 
 ---
 
 ## 4. Configuração e Inicialização
 
-Para que o aplicativo funcione, é necessário primeiro configurar as credenciais da API.
+Para que o aplicativo funcione, é necessário primeiro configurá-lo com as credenciais do restaurante. A configuração é feita através da leitura de um QR Code.
 
-1.  Acesse a página inicial.
-2.  Clique no ícone de engrenagem (⚙️) no rodapé para navegar até a tela de **Configurações**.
-3.  Insira o **Restaurant ID** e a **Chave da API (API Key)** fornecidos pelo sistema ERP.
-4.  Clique em **Salvar**.
+1.  Ao abrir o aplicativo pela primeira vez, você verá a tela de boas-vindas.
+2.  Clique no botão **"Escanear QR Code"**.
+3.  Permita o acesso à câmera do seu dispositivo, se solicitado.
+4.  Aponte a câmera para o QR Code fornecido pelo seu sistema ERP.
 
-Após salvar, o aplicativo irá carregar a lista de funcionários e estará pronto para uso.
+Após a leitura bem-sucedida, o aplicativo salvará as credenciais e carregará automaticamente a lista de funcionários, ficando pronto para uso.
+
+### Formato do QR Code
+
+O QR Code deve conter um objeto JSON com as seguintes chaves:
+```json
+{
+  "restaurantId": "SEU_USER_ID",
+  "apiKey": "SUA_CHAVE_DE_API_EXTERNA"
+}
+```
 
 ---
 

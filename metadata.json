@@ -1,5 +1,7 @@
 {
   "name": "Ponto Móvel Gastronômico",
   "description": "Aplicativo de ponto móvel para funcionários, integrado ao sistema ERP gastronômico. Permite que os funcionários registrem suas entradas, saídas e pausas de forma rápida e segura.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
