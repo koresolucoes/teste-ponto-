@@ -20,9 +20,10 @@ O aplicativo foi projetado com uma interface moderna e responsiva, utilizando Ta
   - Exibe a última ação de ponto registrada (entrada, saída, etc.).
   - Logout seguro.
 
-- **Registro de Ponto (`Bater Ponto`):**
+- **Registro de Ponto com Geolocalização:**
   - Funcionalidade principal que permite registrar início de turno, início de pausa, fim de pausa e fim de turno.
   - Ação confirmada via modal com inserção do PIN, garantindo segurança.
+  - **Utiliza a geolocalização do dispositivo** para validar se o funcionário está no local de trabalho, aumentando a segurança e a precisão dos registros.
 
 - **Espelho de Ponto:**
   - Visualização detalhada dos registros de ponto.
@@ -110,7 +111,7 @@ O aplicativo se comunica com uma API RESTful para buscar e enviar dados. Todos o
 | :----- | :-------------------------- | :------------------------------------------------------------------------ |
 | `GET`  | `/funcionarios`             | Lista todos os funcionários ativos.                                       |
 | `POST` | `/verificar-pin`            | Valida o PIN de um funcionário para login.                                |
-| `POST` | `/ponto/bater-ponto`        | Registra um evento de ponto (entrada, pausa, etc.).                       |
+| `POST` | `/ponto/bater-ponto`        | Registra um evento de ponto. Envia as coordenadas de geolocalização para validação. |
 | `GET`  | `/ponto`                    | Obtém os registros de ponto de um funcionário para um período.            |
 | `GET`  | `/escalas`                  | Obtém as escalas de trabalho publicadas para um período.                  |
 | `GET`  | `/folha-pagamento`          | Obtém os dados do holerite de um funcionário para um mês/ano.             |
