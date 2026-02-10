@@ -17,7 +17,7 @@ export class ApiService {
   private readonly settingsService = inject(SettingsService);
 
   // Usando um proxy CORS para evitar problemas de CORS durante o desenvolvimento
-  private readonly proxiedBaseUrl = 'https://gastro.koresolucoes.com.br/api/rh';
+  private readonly proxiedBaseUrl = 'https://app.chefos.online/api/rh';
 
   private getOptions(): { headers: HttpHeaders, params: HttpParams } | null {
     if (!this.settingsService.isConfigured()) {

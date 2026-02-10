@@ -99,7 +99,7 @@ Um objeto JSON com as chaves `restaurantId` e `apiKey`.
 
 ## 5. Integração com a API
 
-O aplicativo se comunica com uma API RESTful para buscar e enviar dados. Todos os endpoints estão localizados sob a base `https://gastro.koresolucoes.com.br/api/rh`.
+O aplicativo se comunica com uma API RESTful para buscar e enviar dados. Todos os endpoints estão localizados sob a base `https://app.chefos.online/api/rh`.
 
 **Parâmetros Comuns:**
 - `restaurantId`: ID do restaurante, enviado como query parameter.
