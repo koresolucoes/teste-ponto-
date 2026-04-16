@@ -41,9 +41,13 @@ export class ApiService {
   }
 
   getFuncionarioById(id: string): Observable<Funcionario | undefined> {
-    return this.getFuncionarios().pipe(
-      map(funcionarios => funcionarios.find(f => f.id === id))
-    );
+    const options = this.getOptions();
+    if (!options) {
+      return throwError(() => new Error('API não configurada.'));
+    }
+    const params = options.params.set('id', id);
+    return this.http.get<Funcionario>(`${this.proxiedBaseUrl}/funcionarios`, { headers: options.headers, params })
+      .pipe(catchError((error) => this.handleError(error)));
   }
 
   verificarPin(data: VerificarPinRequest): Observable<VerificarPinResponse> {
@@ -60,7 +64,7 @@ export class ApiService {
     if (!options) {
       return throwError(() => new Error('API não configurada.'));
     }
-    return this.http.post<BaterPontoResponse>(`${this.proxiedBaseUrl}/ponto/bater-ponto`, data, options)
+    return this.http.post<BaterPontoResponse>(`${this.proxiedBaseUrl}/ponto`, data, options)
       .pipe(catchError((error) => this.handleError(error)));
   }
 

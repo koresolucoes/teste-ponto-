@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 
 import { Funcionario } from '../../models/funcionario.model';
 import { BaterPontoRequest, BaterPontoResponse, BaterPontoStatus, TimeSheetEntry } from '../../models/ponto.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
-import { Coordinates, GeolocationService } from '../../services/geolocation.service';
 
 @Component({
   selector: 'app-portal',
@@ -20,11 +19,11 @@ export class PortalComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly apiService = inject(ApiService);
   private readonly authService = inject(AuthService);
-  private readonly geolocationService = inject(GeolocationService);
 
   employee = signal<Funcionario | null>(null);
   lastActionMessage = signal('Carregando último registro...');
   lastActionTime = signal<Date | null>(null);
+  currentStatus = signal<'IN' | 'OUT'>('OUT');
   
   // Estado do Modal
   showPinModal = signal(false);
@@ -71,25 +70,23 @@ export class PortalComponent {
     this.lastActionTime.set(new Date(entry.clock_in_time));
     if (entry.clock_out_time) {
         this.lastActionMessage.set('Última ação: Fim de turno');
+        this.currentStatus.set('OUT');
     } else {
-        // Limitação: a API de histórico não informa se o ponto aberto é início de turno ou de pausa.
         this.lastActionMessage.set('Turno em andamento');
+        this.currentStatus.set('IN');
     }
   }
 
-  private displayLastActionFromBaterPonto(response: BaterPontoResponse): void {
-    this.lastActionMessage.set(this.getBaterPontoMessage(response.status));
-    this.lastActionTime.set(new Date());
-  }
-  
-  private getBaterPontoMessage(status: BaterPontoStatus): string {
-    switch (status) {
-      case 'TURNO_INICIADO': return 'Turno iniciado com sucesso!';
-      case 'PAUSA_INICIADA': return 'Pausa iniciada.';
-      case 'PAUSA_FINALIZADA': return 'Pausa finalizada.';
-      case 'TURNO_FINALIZADO': return 'Turno finalizado. Bom descanso!';
-      default: return 'Operação realizada com sucesso!';
+  private displayLastActionFromBaterPonto(response: any): void {
+    // A resposta da API pode não ter o formato exato, então inferimos pelo status atual
+    if (this.currentStatus() === 'IN') {
+      this.lastActionMessage.set('Turno finalizado. Bom descanso!');
+      this.currentStatus.set('OUT');
+    } else {
+      this.lastActionMessage.set('Turno iniciado com sucesso!');
+      this.currentStatus.set('IN');
     }
+    this.lastActionTime.set(new Date());
   }
 
   getInitials(name: string): string {
@@ -147,42 +144,35 @@ export class PortalComponent {
     if (this.modalPin().length !== 4 || !this.employee()) return;
 
     this.modalStatus.set('loading');
-    this.modalMessage.set('Obtendo localização...');
-
-    let location: Coordinates | null = null;
-    try {
-      location = await this.geolocationService.getCurrentPositionAsPromise();
-    } catch (error: any) {
-      this.modalStatus.set('error');
-      this.modalMessage.set(error.message || 'Falha ao obter localização.');
-      this.modalPin.set(''); // Limpa o PIN no erro
-      return;
-    }
-
-    this.modalMessage.set('Processando...');
+    this.modalMessage.set('Verificando PIN...');
 
     const employeeId = this.employee()!.id;
-    const requestData: BaterPontoRequest = {
-      employeeId,
-      pin: this.modalPin(),
-      latitude: location.latitude,
-      longitude: location.longitude,
-    };
+    const pin = this.modalPin();
+    const type = this.currentStatus() === 'IN' ? 'OUT' : 'IN';
 
-    this.apiService.baterPonto(requestData)
-      .pipe(finalize(() => {
+    this.apiService.verificarPin({ employeeId, pin })
+      .pipe(
+        switchMap(res => {
+          if (!res.success) {
+            throw new Error(res.message || 'PIN incorreto.');
+          }
+          this.modalMessage.set('Registrando ponto...');
+          return this.apiService.baterPonto({ employeeId, type });
+        }),
+        finalize(() => {
           this.modalPin.set('');
-      }))
+        })
+      )
       .subscribe({
         next: (response) => {
           this.modalStatus.set('success');
-          this.modalMessage.set(this.getBaterPontoMessage(response.status));
+          this.modalMessage.set('Ponto registrado com sucesso!');
           this.displayLastActionFromBaterPonto(response);
           setTimeout(() => this.closeModal(), 1500);
         },
         error: (err) => {
           this.modalStatus.set('error');
-          this.modalMessage.set(err.message || 'PIN incorreto. Tente novamente.');
+          this.modalMessage.set(err.message || 'Erro ao registrar ponto. Tente novamente.');
         },
       });
   }

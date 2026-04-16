@@ -1,9 +1,7 @@
 
 export interface BaterPontoRequest {
   employeeId: string;
-  pin: string;
-  latitude?: number;
-  longitude?: number;
+  type: 'IN' | 'OUT';
 }
 
 export type BaterPontoStatus =
