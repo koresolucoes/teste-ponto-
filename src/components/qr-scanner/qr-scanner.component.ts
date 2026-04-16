@@ -114,7 +114,7 @@ export class QrScannerComponent implements AfterViewInit, OnDestroy {
           };
         }
       } else {
-        // Fallback to string split for "id;key" format
+        // Fallback to string split for "id;key" format or just ID
         const parts = decodedText.split(';');
         if (parts.length === 2 && parts[0] && parts[1]) {
           config = {

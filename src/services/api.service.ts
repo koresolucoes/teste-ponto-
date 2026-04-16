@@ -16,8 +16,8 @@ export class ApiService {
   private readonly http = inject(HttpClient);
   private readonly settingsService = inject(SettingsService);
 
-  // Usando um proxy CORS para evitar problemas de CORS durante o desenvolvimento
-  private readonly proxiedBaseUrl = 'https://app.chefos.online/api/rh';
+  // Usando o proxy local (Vercel ou Angular Dev Server) para evitar problemas de CORS
+  private readonly proxiedBaseUrl = '/api/rh';
 
   private getOptions(): { headers: HttpHeaders, params: HttpParams } | null {
     if (!this.settingsService.isConfigured()) {
