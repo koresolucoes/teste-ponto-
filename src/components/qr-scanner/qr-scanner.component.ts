@@ -137,9 +137,12 @@ export class QrScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   private onScanFailure(error: string): void {
-    // The library calls this frequently, so we only log significant errors.
-    // "No QR code found" is expected and should be ignored.
-    if (!error?.includes('No QR code found')) {
+    // A biblioteca chama essa função a cada frame (várias vezes por segundo) 
+    // quando não encontra um QR code na imagem atual.
+    // Vamos ignorar esses erros de "não encontrado" para não poluir o console.
+    const ignoredErrors = ['No QR code found', 'No MultiFormat Readers'];
+    
+    if (!ignoredErrors.some(ignored => error?.includes(ignored))) {
       console.warn(`QR Code scan failure: ${error}`);
     }
   }
