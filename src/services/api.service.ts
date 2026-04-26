@@ -169,14 +169,15 @@ export class ApiService {
       errorMessage = `Erro: ${error.error.message}`;
     } else {
       // Erro do lado do servidor
-      // Procura por uma mensagem de erro específica no corpo da resposta
+      // Procura por mensagens de erro em vários padrões comuns de APIS
       if (error.error?.error?.message && typeof error.error.error.message === 'string') {
         errorMessage = error.error.error.message;
+      } else if (error.error?.message && typeof error.error.message === 'string') {
+        errorMessage = error.error.message;
+      } else if (error.error && typeof error.error === 'string') {
+        errorMessage = error.error;
       } else if (error.status === 401 || error.status === 403) {
-        errorMessage = 'Credenciais da API inválidas ou não fornecidas. Verifique as configurações.';
-         if (error.url?.includes('ponto') || error.url?.includes('verificar-pin')) {
-           errorMessage = 'PIN incorreto.';
-         }
+        errorMessage = 'Sessão expirada ou acesso negado. (Token caducado)';
       } else {
         errorMessage = `Erro ${error.status}: ${error.message}`;
       }
